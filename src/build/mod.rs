@@ -3,7 +3,6 @@ use clap::Args;
 use colored::*;
 use glob::glob;
 use std::{
-    env,
     error::Error,
     fs,
     process::{exit, Command, Output},
@@ -15,6 +14,9 @@ pub struct Build {
     mhz: Option<u8>,
     #[arg(long)]
     release: bool,
+    /// Outputs all used commands
+    #[arg(long)]
+    watch: bool,
 }
 
 impl Runnable for Build {
@@ -41,41 +43,44 @@ impl Build {
             arguments.push(format!("-DF_CPU={}000000UL", fcpu))
         }
 
-        Command::new(config.firmware.language.compiler())
-            .current_dir(env::current_dir().unwrap())
-            // all warnings
-            .arg("-Wall")
-            // optimization
-            .arg(if self.release { "-O3" } else { "-Os" })
-            // custom arguments
-            .args(arguments)
-            .arg(&config.compiler.custom)
-            // include header's directory
-            .arg(format!("-I{}", config.structure.includes))
-            // set arch
-            .arg(format!("-mmcu={}", config.firmware.target.to_lowercase()))
-            // -o {}/firmware.elf {}/{}.c
-            .args(["-o", &format!("{}/firmware.elf", config.structure.builds)])
-            .args(get_file_sources(
-                &config.structure.sources,
-                &config.firmware.language.to_string(),
-            ))
-            .output()
-            .expect("Failed to execute avr-gcc/avr-g++ command")
+        let avr_gcc_cmd = &self.format_avr_gcc_cmd(config, &arguments);
+
+        if self.watch {
+            println!("{}", &avr_gcc_cmd);
+        }
+
+        sh(avr_gcc_cmd, "Failed to execute avr-gcc/avr-g++ command")
     }
 
     fn obj_copy(&self, config: &ProjectConfig) -> Output {
-        Command::new("avr-objcopy")
-            .current_dir(env::current_dir().unwrap())
-            .args(["-j", ".text"])
-            .args(["-j", ".data"])
-            .args(["-O", "ihex"])
-            .args([
-                &format!("{}/firmware.elf", config.structure.builds),
-                &format!("{}/firmware.hex", config.structure.builds),
-            ])
-            .output()
-            .expect("Failed to execute avr-objcopy command")
+        let obj_copy_cmd = self.format_avr_objcopy_cmd(config);
+
+        if self.watch {
+            println!("{}", obj_copy_cmd)
+        }
+
+        sh(&obj_copy_cmd, "Failed to execute avr-objcopy command")
+    }
+
+    fn format_avr_gcc_cmd(&self, config: &ProjectConfig, arguments: &Vec<String>) -> String {
+        let level_of_optimization = if self.release { "-O3" } else { "-Os" }.to_string();
+        format!(
+            "{cc} -Wall {optimization} {custom} -I{headers} -mmcu={arch} -o {builds}/firmware.elf {sources}",
+            cc = config.firmware.language.compiler(),
+            optimization = level_of_optimization,
+            custom = format!("{} {}", config.compiler.custom, arguments.join(" ")),
+            headers = config.structure.includes,
+            arch = config.firmware.target.to_lowercase(),
+            builds = config.structure.builds,
+            sources = get_file_sources(&config.structure.sources, &config.firmware.language.to_string()).join(" ")
+        )
+    }
+
+    fn format_avr_objcopy_cmd(&self, config: &ProjectConfig) -> String {
+        format!(
+            "avr-objcopy -j .text -j .data -O ihex {builds}/firmware.elf {builds}/firmware.hex",
+            builds = config.structure.builds
+        )
     }
 }
 
@@ -90,4 +95,12 @@ fn get_file_sources(directory: &str, ext: &str) -> Vec<String> {
     let xs = glob(&format!("{}/**/*.{}", directory, ext)).expect("Failed to read glob pattern");
     xs.map(|file| file.unwrap().display().to_string())
         .collect::<Vec<_>>()
+}
+
+fn sh(str: &str, expected: &str) -> Output {
+    Command::new("sh")
+        .arg("-c")
+        .arg(str)
+        .output()
+        .expect(expected)
 }
