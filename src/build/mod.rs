@@ -47,7 +47,9 @@ impl Build {
             .arg("-Wall")
             // optimization
             .arg(if self.release { "-O3" } else { "-Os" })
+            // custom arguments
             .args(arguments)
+            .arg(&config.compiler.custom)
             // include header's directory
             .arg(format!("-I{}", config.structure.includes))
             // set arch

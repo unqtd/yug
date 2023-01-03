@@ -8,6 +8,9 @@ pub struct ProjectConfig {
     #[serde(skip_serializing)]
     #[serde(default)]
     pub structure: Structure,
+    #[serde(skip_serializing)]
+    #[serde(default)]
+    pub compiler: Compiler,
 }
 
 /////////////////////////////////////////////////////
@@ -34,6 +37,12 @@ pub struct Structure {
     pub sources: String,
     pub builds: String,
     pub includes: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct Compiler {
+    #[serde(default)]
+    pub custom: String,
 }
 
 /////////////////////////////////////////////////////

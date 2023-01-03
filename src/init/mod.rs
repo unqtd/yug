@@ -9,7 +9,7 @@ mod util;
 use clap::Args;
 
 use crate::{
-    project_config::{Firmware, Language, ProjectConfig, Structure},
+    project_config::{Compiler, Firmware, Language, ProjectConfig, Structure},
     runnable::Runnable,
 };
 
@@ -94,6 +94,7 @@ impl Init {
                 language: (if self.cpp { Language::Cpp } else { Language::C }),
             },
             structure: Structure::default(),
+            compiler: Compiler::default(),
         }
     }
 }
