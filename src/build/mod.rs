@@ -17,6 +17,9 @@ pub struct Build {
     /// Outputs all used commands
     #[arg(long)]
     watch: bool,
+    // Level of optimization
+    #[arg(long)]
+    loo: Option<String>,
 }
 
 impl Runnable for Build {
@@ -63,11 +66,10 @@ impl Build {
     }
 
     fn format_avr_gcc_cmd(&self, config: &ProjectConfig, arguments: &Vec<String>) -> String {
-        let level_of_optimization = if self.release { "-O3" } else { "-Os" }.to_string();
         format!(
             "{cc} -Wall {optimization} {custom} -I{headers} -mmcu={arch} -o {builds}/firmware.elf {sources}",
             cc = config.firmware.language.compiler(),
-            optimization = level_of_optimization,
+            optimization = self.level_of_optimization() ,
             custom = format!("{} {}", config.compiler.custom, arguments.join(" ")),
             headers = config.structure.includes,
             arch = config.firmware.target.to_lowercase(),
@@ -81,6 +83,16 @@ impl Build {
             "avr-objcopy -j .text -j .data -O ihex {builds}/firmware.elf {builds}/firmware.hex",
             builds = config.structure.builds
         )
+    }
+
+    fn level_of_optimization(&self) -> String {
+        if let Some(level) = &self.loo {
+            format!("-{}{}", if level.len() == 1 { "O" } else { "" }, level)
+        } else if self.release {
+            "-O3".to_owned()
+        } else {
+            "-Os".to_owned()
+        }
     }
 }
 
