@@ -13,18 +13,14 @@ use std::{
 pub struct Build {
     #[arg(long)]
     mhz: Option<u8>,
+    #[arg(long)]
+    release: bool,
 }
 
 impl Runnable for Build {
     fn run(self) -> Result<(), Box<dyn Error>> {
         let config = ProjectConfig::read_from_file("yug.toml")?;
         Ok(self.compile_project(&config))
-    }
-}
-
-impl Default for Build {
-    fn default() -> Self {
-        Build { mhz: None }
     }
 }
 
@@ -47,11 +43,16 @@ impl Build {
 
         Command::new(config.firmware.language.compiler())
             .current_dir(env::current_dir().unwrap())
-            .arg("-Os")
+            // all warnings
             .arg("-Wall")
+            // optimization
+            .arg(if self.release { "-O3" } else { "-Os" })
             .args(arguments)
+            // include header's directory
             .arg(format!("-I{}", config.structure.includes))
+            // set arch
             .arg(format!("-mmcu={}", config.firmware.target.to_lowercase()))
+            // -o {}/firmware.elf {}/{}.c
             .args(["-o", &format!("{}/firmware.elf", config.structure.builds)])
             .args(get_file_sources(
                 &config.structure.sources,
