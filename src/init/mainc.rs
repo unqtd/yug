@@ -5,7 +5,12 @@ use super::{write_file, Init};
 impl Init {
     pub fn create_main_c(&self, directory: &str, config: &ProjectConfig) {
         write_file(
-            format!("{}/{}/main.c", &directory, config.structure.sources),
+            format!(
+                "{}/{}/main.{ext}",
+                &directory,
+                config.structure.sources,
+                ext = config.firmware.language.to_string()
+            ),
             format!(
                 r#"
 {}
