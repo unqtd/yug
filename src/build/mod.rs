@@ -19,7 +19,7 @@ pub struct Build {
     watch: bool,
     // Level of optimization
     #[arg(long)]
-    loo: Option<String>,
+    opt_level: Option<String>,
 }
 
 impl Runnable for Build {
@@ -69,7 +69,7 @@ impl Build {
         format!(
             "{cc} -Wall {optimization} {custom} -I{headers} -mmcu={arch} -o {builds}/firmware.elf {sources}",
             cc = config.firmware.language.compiler(),
-            optimization = self.level_of_optimization() ,
+            optimization = self.level_of_optimization(&config) ,
             custom = format!("{} {}", config.compiler.custom, arguments.join(" ")),
             headers = config.structure.includes,
             arch = config.firmware.target.to_lowercase(),
@@ -85,11 +85,13 @@ impl Build {
         )
     }
 
-    fn level_of_optimization(&self) -> String {
-        if let Some(level) = &self.loo {
-            format!("-{}{}", if level.len() == 1 { "O" } else { "" }, level)
-        } else if self.release {
+    fn level_of_optimization(&self, config: &ProjectConfig) -> String {
+        if self.release {
             "-O3".to_owned()
+        } else if let Some(level) = &self.opt_level {
+            format!("-{}{}", if level.len() == 1 { "O" } else { "" }, level)
+        } else if let Some(level) = &config.compiler.opt_level {
+            format!("-{}{}", if level.len() == 1 { "O" } else { "" }, level)
         } else {
             "-Os".to_owned()
         }
