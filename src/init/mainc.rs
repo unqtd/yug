@@ -9,7 +9,7 @@ impl Init {
                 "{}/{}/main.{ext}",
                 &directory,
                 config.structure.sources,
-                ext = config.firmware.language.to_string()
+                ext = config.firmware.language.to_str()
             ),
             format!(
                 r#"

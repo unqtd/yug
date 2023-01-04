@@ -63,13 +63,11 @@ impl Language {
             Language::Cpp => "avr-g++",
         }
     }
-}
 
-impl ToString for Language {
-    fn to_string(&self) -> String {
+    pub fn to_str(&self) -> &'static str {
         match self {
-            Language::C => "c".to_owned(),
-            Language::Cpp => "cpp".to_owned(),
+            Language::C => "c",
+            Language::Cpp => "cpp",
         }
     }
 }

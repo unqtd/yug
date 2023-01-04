@@ -51,7 +51,7 @@ impl Runnable for Init {
             .as_ref()
             .map(|name| {
                 let _ = fs::create_dir(&name);
-                name.to_owned()
+                name.to_string()
             })
             .unwrap_or(".".to_string());
 

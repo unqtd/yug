@@ -74,7 +74,7 @@ impl Build {
             headers = config.structure.includes,
             arch = config.firmware.target.to_lowercase(),
             builds = config.structure.builds,
-            sources = get_file_sources(&config.structure.sources, &config.firmware.language.to_string()).join(" ")
+            sources = get_file_sources(&config.structure.sources, config.firmware.language.to_str()).join(" ")
         )
     }
 
@@ -86,15 +86,18 @@ impl Build {
     }
 
     fn level_of_optimization(&self, config: &ProjectConfig) -> String {
-        if self.release {
-            "-O3".to_owned()
-        } else if let Some(level) = &self.opt_level {
-            format!("-{}{}", if level.len() == 1 { "O" } else { "" }, level)
-        } else if let Some(level) = &config.compiler.opt_level {
-            format!("-{}{}", if level.len() == 1 { "O" } else { "" }, level)
-        } else {
-            "-Os".to_owned()
-        }
+        format!(
+            "-O{}",
+            if self.release {
+                "3".to_string()
+            } else {
+                self.opt_level
+                    .as_ref()
+                    .or(config.compiler.opt_level.as_ref())
+                    .map(|s| s.to_string())
+                    .unwrap_or("s".to_string())
+            }
+        )
     }
 }
 
