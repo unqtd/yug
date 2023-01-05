@@ -1,23 +1,26 @@
 use crate::{
-    project_config::{Language, ProjectConfig},
+    project_config::ProjectConfig,
     runnable::Runnable,
-    util::{get_line_of_all_namefiles_in_dir_with_ext, report_error, sh},
+    util::{get_line_of_all_namefiles_in_dir_with_ext, report_error},
 };
 use clap::Args;
 use std::{error::Error, fs, process::Output};
+
+pub mod compiletion_api;
+use compiletion_api::CompilerInterface;
 
 #[derive(Args, Debug)]
 pub struct Build {
     #[arg(long)]
     mhz: Option<u8>,
-    #[arg(long)]
-    release: bool,
+    // #[arg(long)]
+    // release: bool,
     /// Outputs all used commands
     #[arg(long)]
     watch: bool,
     // Level of optimization
-    #[arg(long)]
-    opt_level: Option<String>,
+    // #[arg(long)]
+    // opt_level: Option<String>,
 }
 
 impl Runnable for Build {
@@ -31,74 +34,33 @@ impl Build {
     fn compile_project(&self, config: &ProjectConfig) {
         let _ = fs::create_dir(&config.structure.builds);
 
-        report_error(self.gcc_avr(&config));
-        report_error(self.obj_copy(&config));
+        let mut compiler_api = CompilerInterface::from(config);
+
+        if let Some(mhz) = self.mhz {
+            compiler_api.mhz(mhz);
+        }
+
+        let sources = get_line_of_all_namefiles_in_dir_with_ext(
+            config.structure.sources.as_str(),
+            config.firmware.language.to_str(),
+        );
+
+        let objects = get_line_of_all_namefiles_in_dir_with_ext("vendor", "o");
+        let sources_and_objects = sources + " " + &objects;
+
+        let builds = format!("{}/firmware.elf", config.structure.builds);
+
+        self.handle_output(compiler_api.gcc_avr(&sources_and_objects, &builds));
+        self.handle_output(compiler_api.obj_copy());
 
         println!("Compiled.")
     }
 
-    fn gcc_avr(&self, config: &ProjectConfig) -> Output {
-        let mut arguments = vec![];
-
-        if let Some(fcpu) = &self.mhz {
-            arguments.push(format!("-DF_CPU={}000000UL", fcpu))
-        }
-
-        let avr_gcc_cmd = &self.format_avr_gcc_cmd(config, &arguments);
-
+    fn handle_output(&self, (output, cmd): (Output, String)) {
         if self.watch {
-            println!("{}", &avr_gcc_cmd);
+            println!("{}", cmd.trim())
         }
 
-        sh(avr_gcc_cmd, "Failed to execute avr-gcc/avr-g++ command")
-    }
-
-    fn obj_copy(&self, config: &ProjectConfig) -> Output {
-        let obj_copy_cmd = self.format_avr_objcopy_cmd(config);
-
-        if self.watch {
-            println!("{}", obj_copy_cmd)
-        }
-
-        sh(&obj_copy_cmd, "Failed to execute avr-objcopy command")
-    }
-
-    fn format_avr_gcc_cmd(&self, config: &ProjectConfig, arguments: &Vec<String>) -> String {
-        format!(
-            "{cc} -Wall {optimization} {custom} -I{headers} -mmcu={arch} -o {builds}/firmware.elf {sources} {yet_sources}",
-            cc = config.firmware.language.compiler(),
-            optimization = self.level_of_optimization(&config) ,
-            custom = format!("{} {}", config.compiler.custom, arguments.join(" ")),
-            headers = config.structure.includes,
-            arch = config.firmware.target.to_lowercase(),
-            builds = config.structure.builds,
-            sources = get_line_of_all_namefiles_in_dir_with_ext(&config.structure.sources, config.firmware.language.to_str()),
-            yet_sources = match config.firmware.language {
-                Language::C => String::new(),
-                Language::Cpp => get_line_of_all_namefiles_in_dir_with_ext(&config.structure.sources, "c")
-            }
-        )
-    }
-
-    fn format_avr_objcopy_cmd(&self, config: &ProjectConfig) -> String {
-        format!(
-            "avr-objcopy -j .text -j .data -O ihex {builds}/firmware.elf {builds}/firmware.hex",
-            builds = config.structure.builds
-        )
-    }
-
-    fn level_of_optimization(&self, config: &ProjectConfig) -> String {
-        format!(
-            "-O{}",
-            if self.release {
-                "3".to_string()
-            } else {
-                self.opt_level
-                    .as_ref()
-                    .or(config.compiler.opt_level.as_ref())
-                    .map(String::from)
-                    .unwrap_or("s".to_string())
-            }
-        )
+        report_error(output)
     }
 }

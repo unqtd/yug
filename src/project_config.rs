@@ -47,8 +47,8 @@ pub struct Structure {
 pub struct Compiler {
     #[serde(default)]
     pub custom: String,
-    #[serde(rename = "opt-level")]
-    pub opt_level: Option<String>,
+    // #[serde(rename = "opt-level")]
+    // pub opt_level: Option<String>,
 }
 
 /////////////////////////////////////////////////////

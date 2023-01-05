@@ -4,6 +4,7 @@ use clap::Args;
 use itertools::Itertools;
 
 use crate::{
+    build::compiletion_api::CompilerInterface,
     project_config::ProjectConfig,
     runnable::Runnable,
     util::{report_error, sh},
@@ -22,13 +23,13 @@ impl Runnable for Deps {
 
         let _ = fs::create_dir("vendor");
 
-        for (name, dep) in config.dependencies {
+        for (name, dep) in &config.dependencies {
             let _ = fs::create_dir(format!("vendor/{}", name));
             let _ = fs::create_dir(format!("vendor/{name}/obj", name = name));
 
             let Dependence::Local {
                 local,
-                language,
+                language: _,
                 manifest,
             } = dep;
 
@@ -47,17 +48,14 @@ impl Runnable for Deps {
                 "Failed to copy headers",
             ));
 
-            report_error(sh(
-                format!(
-                    "{cc} -Os {sources} -mmcu={arch} -c -o vendor/{name}/obj/{name}.o",
-                    cc = language.compiler(),
-                    sources = sources,
-                    name = name,
-                    arch = config.firmware.target.to_lowercase()
-                )
-                .as_str(),
-                "Failed to compile",
-            ));
+            let mut compiler_api = CompilerInterface::from(&config);
+            compiler_api.custom("-c");
+
+            report_error(
+                compiler_api
+                    .gcc_avr(&sources, format!("vendor/{name}/obj/{name}.o").as_str())
+                    .0,
+            );
         }
 
         Ok(())
