@@ -1,10 +1,13 @@
 use serde::{Deserialize, Serialize};
 
+use crate::project_config::Language;
+
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum Dependence {
     Local {
         local: String,
+        language: Language,
         #[serde(default)]
         manifest: Manifest,
     },

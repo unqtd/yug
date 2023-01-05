@@ -1,13 +1,15 @@
 mod build;
+mod deps;
 mod flash;
 mod init;
 mod project_config;
 mod runnable;
-mod dependence;
+mod util;
 
 use build::Build;
 use clap::{Parser, Subcommand};
 use colored::*;
+use deps::Deps;
 use flash::Flash;
 use init::Init;
 use runnable::Runnable;
@@ -40,6 +42,8 @@ enum Commands {
     Build(Build),
     /// Load firmware to micro-controller
     Flash(Flash),
+    /// Manage dependencies
+    Deps(Deps),
 }
 
 impl Runnable for Commands {
@@ -48,6 +52,7 @@ impl Runnable for Commands {
             Commands::Init(init) => init.run(),
             Commands::Build(build) => build.run(),
             Commands::Flash(flash) => flash.run(),
+            Commands::Deps(deps) => deps.run(),
         }
     }
 }

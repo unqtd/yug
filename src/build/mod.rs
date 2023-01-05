@@ -1,16 +1,10 @@
 use crate::{
     project_config::{Language, ProjectConfig},
     runnable::Runnable,
+    util::{get_line_of_all_namefiles_in_dir_with_ext, report_error, sh},
 };
 use clap::Args;
-use colored::*;
-use glob::glob;
-use itertools::Itertools;
-use std::{
-    error::Error,
-    fs,
-    process::{exit, Command, Output},
-};
+use std::{error::Error, fs, process::Output};
 
 #[derive(Args, Debug)]
 pub struct Build {
@@ -107,29 +101,4 @@ impl Build {
             }
         )
     }
-}
-
-fn report_error(output: Output) {
-    if !output.stderr.is_empty() {
-        eprint!("{}", String::from_utf8(output.stderr).unwrap().red());
-        exit(1);
-    }
-}
-
-fn get_line_of_all_namefiles_in_dir_with_ext(directory: &str, ext: &str) -> String {
-    let xs = glob(&format!("{}/**/*.{}", directory, ext)).expect("Failed to read glob pattern");
-
-    Itertools::intersperse(
-        xs.map(|file| file.unwrap().display().to_string()),
-        " ".to_string(),
-    )
-    .collect()
-}
-
-fn sh(str: &str, expected: &str) -> Output {
-    Command::new("sh")
-        .arg("-c")
-        .arg(str)
-        .output()
-        .expect(expected)
 }

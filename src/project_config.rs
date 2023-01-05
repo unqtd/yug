@@ -2,7 +2,7 @@ use std::{collections::HashMap, error::Error, fs, io::Read};
 
 use serde::{Deserialize, Serialize};
 
-use crate::dependence::Dependence;
+use crate::deps::dependence::Dependence;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectConfig {
