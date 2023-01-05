@@ -1,4 +1,4 @@
-use std::{error::Error, fs};
+use std::{collections::HashMap, error::Error, fs};
 
 mod clangd;
 mod gitinit;
@@ -95,6 +95,7 @@ impl Init {
             },
             structure: Structure::default(),
             compiler: Compiler::default(),
+            dependencies: HashMap::new(),
         }
     }
 }

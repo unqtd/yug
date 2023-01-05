@@ -3,6 +3,7 @@ mod flash;
 mod init;
 mod project_config;
 mod runnable;
+mod dependence;
 
 use build::Build;
 use clap::{Parser, Subcommand};
