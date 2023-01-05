@@ -1,7 +1,11 @@
-use crate::{project_config::ProjectConfig, runnable::Runnable};
+use crate::{
+    project_config::{Language, ProjectConfig},
+    runnable::Runnable,
+};
 use clap::Args;
 use colored::*;
 use glob::glob;
+use itertools::Itertools;
 use std::{
     error::Error,
     fs,
@@ -67,14 +71,18 @@ impl Build {
 
     fn format_avr_gcc_cmd(&self, config: &ProjectConfig, arguments: &Vec<String>) -> String {
         format!(
-            "{cc} -Wall {optimization} {custom} -I{headers} -mmcu={arch} -o {builds}/firmware.elf {sources}",
+            "{cc} -Wall {optimization} {custom} -I{headers} -mmcu={arch} -o {builds}/firmware.elf {sources} {yet_sources}",
             cc = config.firmware.language.compiler(),
             optimization = self.level_of_optimization(&config) ,
             custom = format!("{} {}", config.compiler.custom, arguments.join(" ")),
             headers = config.structure.includes,
             arch = config.firmware.target.to_lowercase(),
             builds = config.structure.builds,
-            sources = get_file_sources(&config.structure.sources, config.firmware.language.to_str()).join(" ")
+            sources = get_line_of_all_namefiles_in_dir_with_ext(&config.structure.sources, config.firmware.language.to_str()),
+            yet_sources = match config.firmware.language {
+                Language::C => String::new(),
+                Language::Cpp => get_line_of_all_namefiles_in_dir_with_ext(&config.structure.sources, "c")
+            }
         )
     }
 
@@ -94,7 +102,7 @@ impl Build {
                 self.opt_level
                     .as_ref()
                     .or(config.compiler.opt_level.as_ref())
-                    .map(|s| s.to_string())
+                    .map(String::from)
                     .unwrap_or("s".to_string())
             }
         )
@@ -108,10 +116,14 @@ fn report_error(output: Output) {
     }
 }
 
-fn get_file_sources(directory: &str, ext: &str) -> Vec<String> {
+fn get_line_of_all_namefiles_in_dir_with_ext(directory: &str, ext: &str) -> String {
     let xs = glob(&format!("{}/**/*.{}", directory, ext)).expect("Failed to read glob pattern");
-    xs.map(|file| file.unwrap().display().to_string())
-        .collect::<Vec<_>>()
+
+    Itertools::intersperse(
+        xs.map(|file| file.unwrap().display().to_string()),
+        " ".to_string(),
+    )
+    .collect()
 }
 
 fn sh(str: &str, expected: &str) -> Output {
