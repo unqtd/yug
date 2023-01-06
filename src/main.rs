@@ -30,19 +30,18 @@ fn main() {
 
     cli.command.map(|command| {
         Runnable::run(command).map_err(|err| eprintln!("{}", format!("{}", err).red()))
-        // .map_err(|err| eprintln!("{}", format!("Something went wrong:\n{}", err).red()))
     });
 }
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Init a new project
+    /// Initializes a new project
     Init(Init),
-    /// Build the project
+    /// Compiles the current project
     Build(Build),
-    /// Load firmware to micro-controller
+    /// Download the firmware to the microcontroller
     Flash(Flash),
-    /// Manage dependencies
+    /// Install dependencies
     Deps(Deps),
 }
 

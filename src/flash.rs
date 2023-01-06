@@ -6,10 +6,10 @@ use crate::{project_config::ProjectConfig, runnable::Runnable};
 
 #[derive(Args, Debug)]
 pub struct Flash {
-    /// Type of programmer
+    /// Programmer type
     #[arg(short, long)]
     programmer: String,
-    /// Port used programmer
+    /// The port on which the programmer hangs
     #[arg(long)]
     port: Option<String>,
 }

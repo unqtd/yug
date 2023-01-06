@@ -17,22 +17,21 @@ use self::util::{get_name_current_dir, write_file};
 
 #[derive(Args, Debug)]
 pub struct Init {
-    /// If you do not explicitly specify a name, the project will be
-    /// initialized in the current directory
+    /// The name of the project under which the directory with this name will be created
     project_name: Option<String>,
-    /// Set micro-controllers arch
+    /// Microcontroller model
     #[arg(short, long)]
     target: String,
-    /// Set  C++ as languge of project
+    /// Sets C++ as the project language
     #[arg(long)]
     cpp: bool,
-    /// Initialize a git repository
+    /// Initializes the local git repository
     #[arg(long)]
     git: bool,
-    /// Add full developer envirement
+    /// Organizes a complete development environment
     #[arg(short, long)]
     dev: bool,
-    /// F_CPU
+    /// Clock frequency in megahertz. By default it is 1mhz
     #[arg(long)]
     mhz: Option<u8>,
 }

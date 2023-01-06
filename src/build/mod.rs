@@ -11,16 +11,12 @@ use compiletion_api::CompilerInterface;
 
 #[derive(Args, Debug)]
 pub struct Build {
+    /// Sets the clock frequency in megahertz
     #[arg(long)]
     mhz: Option<u8>,
-    // #[arg(long)]
-    // release: bool,
-    /// Outputs all used commands
+    /// Displays all the commands used for the build
     #[arg(long)]
     watch: bool,
-    // Level of optimization
-    // #[arg(long)]
-    // opt_level: Option<String>,
 }
 
 impl Runnable for Build {
