@@ -14,6 +14,7 @@ pub struct ProjectConfig {
     #[serde(default)]
     pub compiler: Compiler,
     #[serde(skip_serializing)]
+    #[serde(default)]
     pub dependencies: HashMap<String, Dependence>,
 }
 

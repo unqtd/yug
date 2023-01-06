@@ -22,11 +22,7 @@ int main(void) {{
   }}
 }}
             "#,
-                if self.include_dir && self.spec {
-                    "#include \"spec.h\""
-                } else {
-                    ""
-                }
+                if self.dev { "#include \"spec.h\"" } else { "" }
             )
             .trim(),
         );

@@ -26,18 +26,12 @@ pub struct Init {
     /// Set  C++ as languge of project
     #[arg(long)]
     cpp: bool,
-    /// Not generate a config file for languge server
-    #[arg(long)]
-    not_clangd: bool,
     /// Initialize a git repository
     #[arg(long)]
     git: bool,
-    /// Create directory for headers
-    #[arg(long)]
-    include_dir: bool,
-    /// Generate spec file about micro-controller. Work only with flag --include-dir
-    #[arg(long)]
-    spec: bool,
+    /// Add full developer envirement
+    #[arg(short, long)]
+    dev: bool,
     /// F_CPU
     #[arg(long)]
     mhz: Option<u8>,
@@ -67,11 +61,12 @@ impl Runnable for Init {
             toml::to_string(&config).unwrap().trim_end(),
         );
 
-        self.create_clangd(&directory, &config);
         self.git_init_repo(&directory);
 
         // Create a include directory for headers
-        if self.include_dir {
+        if self.dev {
+            self.create_clangd(&directory, &config);
+
             let include_path = format!("{}/{}", &directory, &config.structure.includes);
             let _ = fs::create_dir(&include_path);
 
