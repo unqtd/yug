@@ -6,6 +6,7 @@ pub struct CompilerInterface<'a> {
     config: &'a ProjectConfig,
     mhz: Option<String>,
     customs: Vec<&'a str>,
+    opt_level: &'a str,
 }
 
 impl<'a> CompilerInterface<'a> {
@@ -14,6 +15,7 @@ impl<'a> CompilerInterface<'a> {
             config,
             mhz: None,
             customs: Vec::new(),
+            opt_level: "s",
         }
     }
 
@@ -23,6 +25,11 @@ impl<'a> CompilerInterface<'a> {
 
     pub fn custom(&mut self, value: &'a str) {
         self.customs.push(value);
+    }
+
+    pub fn opt_level(&mut self, level: &'a str) {
+        // ToDo: make validation
+        self.opt_level = level
     }
 
     // pub fn compile(self) {
@@ -43,8 +50,7 @@ impl<'a> CompilerInterface<'a> {
         format!(
             "{cc} -Wall {optimization} {fcpu} {custom} {customs} -Ivendor -I{headers} -mmcu={arch} -o {builds} {sources}",
             cc = self.config.firmware.language.compiler(),
-            // ToDo: customize level of optimization
-            optimization = "-Os",
+            optimization = format!("-O{}", self.opt_level),
             fcpu = self.mhz.as_ref().unwrap_or(&"".to_string()),
             // ToDo: customize custom args to compiler
             custom = self.config.compiler.custom,

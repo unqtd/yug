@@ -17,6 +17,9 @@ pub struct Build {
     /// Displays all the commands used for the build
     #[arg(long)]
     watch: bool,
+    /// Choosing the optimization level
+    #[arg(long)]
+    opt_level: Option<String>,
 }
 
 impl Runnable for Build {
@@ -34,6 +37,10 @@ impl Build {
 
         if let Some(mhz) = self.mhz {
             compiler_api.mhz(mhz);
+        }
+
+        if let Some(level) = &self.opt_level {
+            compiler_api.opt_level(level.as_str())
         }
 
         let sources = get_line_of_all_namefiles_in_dir_with_ext(

@@ -15,7 +15,11 @@ use self::dependence::Dependence;
 pub mod dependence;
 
 #[derive(Args, Debug)]
-pub struct Deps {}
+pub struct Deps {
+    /// Choosing the optimization level
+    #[arg(long)]
+    opt_level: Option<String>,
+}
 
 impl Runnable for Deps {
     fn run(self) -> Result<(), Box<dyn std::error::Error>> {
@@ -50,6 +54,10 @@ impl Runnable for Deps {
 
             let mut compiler_api = CompilerInterface::from(&config);
             compiler_api.custom("-c");
+
+            if let Some(level) = &self.opt_level {
+                compiler_api.opt_level(level.as_str())
+            }
 
             report_error(
                 compiler_api

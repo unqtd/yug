@@ -12,6 +12,8 @@ pub struct Flash {
     /// The port on which the programmer hangs
     #[arg(long)]
     port: Option<String>,
+    #[arg(short, long)]
+    bitrate: Option<String>,
 }
 
 impl Runnable for Flash {
@@ -28,9 +30,15 @@ impl Runnable for Flash {
             &path_hex_file,
         ];
 
+        // ToDo: refactor!
         if let Some(port) = &self.port {
             arguments.push("-P");
             arguments.push(port)
+        }
+
+        if let Some(bitrate) = &self.bitrate {
+            arguments.push("-b");
+            arguments.push(bitrate)
         }
 
         Command::new("avrdude")
