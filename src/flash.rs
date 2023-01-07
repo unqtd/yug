@@ -48,7 +48,8 @@ impl Runnable for Flash {
                 "flash:w:{}/firmware.hex:i",
                 config.structure.builds
             ))
-            .spawn()?;
+            .spawn()?
+            .wait_with_output()?;
 
         Ok(())
     }
