@@ -14,6 +14,8 @@ pub struct Flash {
     port: Option<String>,
     #[arg(short, long)]
     bitrate: Option<String>,
+    #[arg(short, long)]
+    bitclock: Option<String>,
 }
 
 impl Runnable for Flash {
@@ -36,9 +38,16 @@ impl Runnable for Flash {
             arguments.push(port)
         }
 
+        // dry
         if let Some(bitrate) = &self.bitrate {
             arguments.push("-b");
             arguments.push(bitrate)
+        }
+
+        // dry
+        if let Some(bitclock) = &self.bitclock {
+            arguments.push("-B");
+            arguments.push(bitclock)
         }
 
         Command::new("avrdude")
