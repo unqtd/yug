@@ -15,6 +15,7 @@ impl Init {
 CompileFlags:
   Add:
     - "-I/usr/lib/avr/include"
+    - "-I../vendor"
 {}
                 "#,
                 includes

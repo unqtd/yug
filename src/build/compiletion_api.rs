@@ -1,12 +1,16 @@
 use std::process::Output;
 
-use crate::{project_config::ProjectConfig, util::sh};
+use crate::{
+    project_config::{Language, ProjectConfig},
+    util::sh,
+};
 
 pub struct CompilerInterface<'a> {
     config: &'a ProjectConfig,
     mhz: Option<String>,
     customs: Vec<&'a str>,
     opt_level: &'a str,
+    language: Option<&'a Language>,
 }
 
 impl<'a> CompilerInterface<'a> {
@@ -16,6 +20,7 @@ impl<'a> CompilerInterface<'a> {
             mhz: None,
             customs: Vec::new(),
             opt_level: "s",
+            language: None,
         }
     }
 
@@ -30,6 +35,10 @@ impl<'a> CompilerInterface<'a> {
     pub fn opt_level(&mut self, level: &'a str) {
         // ToDo: make validation
         self.opt_level = level
+    }
+
+    pub fn language(&mut self, lang: &'a Language) {
+        self.language = Some(lang)
     }
 
     // pub fn compile(self) {
@@ -49,7 +58,7 @@ impl<'a> CompilerInterface<'a> {
     fn format_avr_gcc_cmd(&self, sources: &str, builds: &str) -> String {
         format!(
             "{cc} -Wall {optimization} {fcpu} {custom} {customs} -Ivendor -I{headers} -mmcu={arch} -o {builds} {sources}",
-            cc = self.config.firmware.language.compiler(),
+            cc = self.language.unwrap_or(&self.config.firmware.language).compiler(),
             optimization = format!("-O{}", self.opt_level),
             fcpu = self.mhz.as_ref().unwrap_or(&"".to_string()),
             // ToDo: customize custom args to compiler

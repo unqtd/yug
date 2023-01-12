@@ -33,7 +33,7 @@ impl Runnable for Deps {
 
             let Dependence::Local {
                 local,
-                language: _,
+                language,
                 manifest,
             } = dep;
 
@@ -54,6 +54,7 @@ impl Runnable for Deps {
 
             let mut compiler_api = CompilerInterface::from(&config);
             compiler_api.custom("-c");
+            compiler_api.language(language);
 
             if let Some(level) = &self.opt_level {
                 compiler_api.opt_level(level.as_str())
