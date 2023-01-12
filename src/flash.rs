@@ -16,21 +16,12 @@ pub struct Flash {
     bitrate: Option<String>,
     #[arg(long)]
     bitclock: Option<String>,
-    #[arg(long)]
-    preset: Option<String>,
 }
 
 impl Runnable for Flash {
-    fn run(mut self) -> Result<(), Box<dyn std::error::Error>> {
+    fn run(self) -> Result<(), Box<dyn std::error::Error>> {
         let config = ProjectConfig::read_from_file("yug.toml")?;
         let path_hex_file = format!("flash:w:{}/firmware.hex:i", &config.structure.builds);
-
-        // ToDo: rewrite!
-        if let Some(preset) = self.preset {
-            if preset == "nano-old" {
-                self.bitrate = Some(String::from("57600"));
-            }
-        }
 
         let mut arguments = vec![
             "-c",
