@@ -1,10 +1,9 @@
 use crate::{
-    project_config::ProjectConfig,
-    runnable::Runnable,
-    util::{get_line_of_all_namefiles_in_dir_with_ext, report_error},
+    project_config::ProjectConfig, runnable::Runnable,
+    util::get_line_of_all_namefiles_in_dir_with_ext,
 };
 use clap::Args;
-use std::{error::Error, fs, process::Output};
+use std::{error::Error, fs};
 
 pub mod compiletion_api;
 use compiletion_api::CompilerInterface;
@@ -53,17 +52,12 @@ impl Build {
 
         let builds = format!("{}/firmware.elf", config.structure.builds);
 
-        self.handle_output(compiler_api.gcc_avr(&sources_and_objects, &builds));
-        self.handle_output(compiler_api.obj_copy());
+        CompilerInterface::handle_output(
+            self.watch,
+            compiler_api.gcc_avr(&sources_and_objects, &builds),
+        );
+        CompilerInterface::handle_output(self.watch, compiler_api.obj_copy());
 
         println!("Compiled.")
-    }
-
-    fn handle_output(&self, (output, cmd): (Output, String)) {
-        if self.watch {
-            println!("{}", cmd.trim())
-        }
-
-        report_error(output)
     }
 }

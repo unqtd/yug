@@ -2,7 +2,7 @@ use std::process::Output;
 
 use crate::{
     project_config::{Language, ProjectConfig},
-    util::sh,
+    util::{report_error, sh},
 };
 
 pub struct CompilerInterface<'a> {
@@ -40,11 +40,6 @@ impl<'a> CompilerInterface<'a> {
     pub fn language(&mut self, lang: &'a Language) {
         self.language = Some(lang)
     }
-
-    // pub fn compile(self) {
-    //     report_error(self.gcc_avr().0);
-    //     report_error(self.obj_copy().0)
-    // }
 
     pub fn gcc_avr(&self, sources: &str, builds: &str) -> (Output, String) {
         let avr_gcc_cmd = self.format_avr_gcc_cmd(sources, builds);
@@ -90,5 +85,13 @@ impl<'a> CompilerInterface<'a> {
             "avr-objcopy -j .text -j .data -O ihex {builds}/firmware.elf {builds}/firmware.hex",
             builds = self.config.structure.builds
         )
+    }
+
+    pub fn handle_output(watch: bool, (output, cmd): (Output, String)) {
+        if watch {
+            println!("{}", cmd.trim())
+        }
+
+        report_error(output)
     }
 }

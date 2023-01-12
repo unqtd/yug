@@ -19,6 +19,9 @@ pub struct Deps {
     /// Choosing the optimization level
     #[arg(long)]
     opt_level: Option<String>,
+    /// Displays all the commands used for the build
+    #[arg(long)]
+    watch: bool,
 }
 
 impl Runnable for Deps {
@@ -60,10 +63,9 @@ impl Runnable for Deps {
                 compiler_api.opt_level(level.as_str())
             }
 
-            report_error(
-                compiler_api
-                    .gcc_avr(&sources, format!("vendor/{name}/obj/{name}.o").as_str())
-                    .0,
+            CompilerInterface::handle_output(
+                self.watch,
+                compiler_api.gcc_avr(&sources, format!("vendor/{name}/obj/{name}.o").as_str()),
             );
         }
 
