@@ -20,7 +20,7 @@ pub struct ProjectConfig {
 
 /////////////////////////////////////////////////////
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Language {
     #[serde(rename = "c")]
     C,

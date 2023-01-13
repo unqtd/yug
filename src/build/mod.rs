@@ -1,12 +1,12 @@
-use crate::{
-    project_config::ProjectConfig, runnable::Runnable,
-    util::get_line_of_all_namefiles_in_dir_with_ext,
-};
+use crate::{project_config::ProjectConfig, runnable::Runnable, util::handle_output};
 use clap::Args;
 use std::{error::Error, fs};
 
-pub mod compiletion_api;
-use compiletion_api::CompilerInterface;
+use self::buildsystem::{BuildOption, BuildSystem};
+
+pub mod buildsystem;
+pub mod compiler_interface;
+pub mod objcopy_interface;
 
 #[derive(Args, Debug)]
 pub struct Build {
@@ -32,31 +32,16 @@ impl Build {
     fn compile_project(&self, config: &ProjectConfig) {
         let _ = fs::create_dir(&config.structure.builds);
 
-        let mut compiler_api = CompilerInterface::from(config);
+        let mut build_system = BuildSystem::new(config);
+        build_system
+            .option_from(self.mhz.map(BuildOption::MHz))
+            .option_from(self.opt_level.clone().map(BuildOption::OptLevel));
 
-        if let Some(mhz) = self.mhz {
-            compiler_api.mhz(mhz);
-        }
+        // Compilation of project
+        handle_output(self.watch, build_system.compile());
 
-        if let Some(level) = &self.opt_level {
-            compiler_api.opt_level(level.as_str())
-        }
-
-        let sources = get_line_of_all_namefiles_in_dir_with_ext(
-            config.structure.sources.as_str(),
-            config.firmware.language.to_str(),
-        );
-
-        let objects = get_line_of_all_namefiles_in_dir_with_ext("vendor", "o");
-        let sources_and_objects = sources + " " + &objects;
-
-        let builds = format!("{}/firmware.elf", config.structure.builds);
-
-        CompilerInterface::handle_output(
-            self.watch,
-            compiler_api.gcc_avr(&sources_and_objects, &builds),
-        );
-        CompilerInterface::handle_output(self.watch, compiler_api.obj_copy());
+        // Proccessing by objcopy
+        handle_output(self.watch, build_system.objcopy());
 
         println!("Compiled.")
     }

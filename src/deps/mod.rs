@@ -4,10 +4,13 @@ use clap::Args;
 use itertools::Itertools;
 
 use crate::{
-    build::compiletion_api::CompilerInterface,
+    build::{
+        buildsystem::{BuildOption, BuildSystem},
+        compiler_interface::CompilerOptions,
+    },
     project_config::ProjectConfig,
     runnable::Runnable,
-    util::{report_error, sh},
+    util::{handle_output, report_error, sh},
 };
 
 use self::dependence::Dependence;
@@ -30,7 +33,7 @@ impl Runnable for Deps {
 
         let _ = fs::create_dir("vendor");
 
-        for (name, dep) in &config.dependencies {
+        for (name, dep) in config.dependencies.iter() {
             let _ = fs::create_dir(format!("vendor/{}", name));
             let _ = fs::create_dir(format!("vendor/{name}/obj", name = name));
 
@@ -50,23 +53,25 @@ impl Runnable for Deps {
             // Just plug!
             // Not to use!
 
+            // Copying
             report_error(sh(
                 format!("cp {headers} vendor/{name}", headers = headers, name = name).as_str(),
                 "Failed to copy headers",
             ));
 
-            let mut compiler_api = CompilerInterface::from(&config);
-            compiler_api.custom("-c");
-            compiler_api.language(language);
+            // Compilation of dependence
 
-            if let Some(level) = &self.opt_level {
-                compiler_api.opt_level(level.as_str())
-            }
+            let mut build_system = BuildSystem::new(&config);
+            build_system
+                .option(BuildOption::Custom("-c".to_string()))
+                .option_from(self.opt_level.clone().map(BuildOption::OptLevel));
 
-            CompilerInterface::handle_output(
-                self.watch,
-                compiler_api.gcc_avr(&sources, format!("vendor/{name}/obj/{name}.o").as_str()),
-            );
+            let mut compiler_interface = build_system.get_compiler();
+            compiler_interface
+                .option(CompilerOptions::Languge(language.clone()))
+                .output(format!("vendor/{name}/obj/{name}.o"));
+
+            handle_output(self.watch, compiler_interface.compile());
         }
 
         Ok(())

@@ -28,3 +28,11 @@ pub fn report_error(output: Output) {
         exit(1);
     }
 }
+
+pub fn handle_output(watch: bool, (output, cmd): (Output, String)) {
+    if watch {
+        println!("{}", cmd.trim())
+    }
+
+    report_error(output)
+}
