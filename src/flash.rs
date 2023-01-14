@@ -9,6 +9,9 @@ pub struct Flash {
     /// Programmer type
     #[arg(short, long)]
     programmer: String,
+    /// Целевой МК. По-умолчанию берётся из конфигурации
+    #[arg(short, long)]
+    target: Option<String>,
     /// The port on which the programmer hangs
     #[arg(long)]
     port: Option<String>,
@@ -27,7 +30,7 @@ impl Runnable for Flash {
             "-c",
             &self.programmer,
             "-p",
-            &config.firmware.target,
+            self.target.as_ref().unwrap_or(&config.firmware.target),
             "-U",
             &path_hex_file,
         ];
