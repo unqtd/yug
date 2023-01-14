@@ -1,8 +1,10 @@
-use std::{env, process::Command};
+mod avrdude_interface;
 
 use clap::Args;
 
-use crate::{project_config::ProjectConfig, runnable::Runnable};
+use crate::{project_config::ProjectConfig, runnable::Runnable, util::handle_output};
+
+use self::avrdude_interface::{AvrDudeInterface, AvrDudeOption};
 
 #[derive(Args, Debug)]
 pub struct Flash {
@@ -16,53 +18,30 @@ pub struct Flash {
     #[arg(long)]
     port: Option<String>,
     #[arg(long)]
-    bitrate: Option<String>,
+    bitrate: Option<u8>,
     #[arg(long)]
-    bitclock: Option<String>,
+    bitclock: Option<u8>,
+    /// Displays all the commands used for the build
+    #[arg(long)]
+    watch: bool,
 }
 
 impl Runnable for Flash {
     fn run(self) -> Result<(), Box<dyn std::error::Error>> {
+        use AvrDudeOption::*;
+
         let config = ProjectConfig::read_from_file("yug.toml")?;
-        let path_hex_file = format!("flash:w:{}/firmware.hex:i", &config.structure.builds);
 
-        let mut arguments = vec![
-            "-c",
-            &self.programmer,
-            "-p",
-            self.target.as_ref().unwrap_or(&config.firmware.target),
-            "-U",
-            &path_hex_file,
-        ];
-
-        // ToDo: refactor!
-        if let Some(port) = &self.port {
-            arguments.push("-P");
-            arguments.push(port)
-        }
-
-        // dry
-        if let Some(bitrate) = &self.bitrate {
-            arguments.push("-b");
-            arguments.push(bitrate)
-        }
-
-        // dry
-        if let Some(bitclock) = &self.bitclock {
-            arguments.push("-B");
-            arguments.push(bitclock)
-        }
-
-        Command::new("avrdude")
-            .current_dir(env::current_dir().unwrap())
-            .args(arguments)
-            .arg(format!(
-                "flash:w:{}/firmware.hex:i",
-                config.structure.builds
+        let mut avrdude = AvrDudeInterface::new(&config);
+        avrdude
+            .option(Programer(&self.programmer))
+            .option(Target(
+                self.target.as_ref().unwrap_or(&config.firmware.target),
             ))
-            .spawn()?
-            .wait_with_output()?;
+            .option_from(self.port.as_ref().map(Port))
+            .option_from(self.bitrate.map(BitRate))
+            .option_from(self.bitclock.map(BitClock));
 
-        Ok(())
+        Ok(handle_output(self.watch, avrdude.load()))
     }
 }
