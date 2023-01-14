@@ -4,7 +4,7 @@ use clap::Args;
 use itertools::Itertools;
 
 use crate::{
-    build::{
+    commands::build::{
         buildsystem::{BuildOption, BuildSystem},
         compiler_interface::CompilerOptions,
     },

@@ -1,17 +1,11 @@
-mod build;
-mod deps;
-mod flash;
-mod init;
+mod commands;
 mod project_config;
 mod runnable;
 mod util;
 
-use build::Build;
 use clap::{Parser, Subcommand};
 use colored::*;
-use deps::Deps;
-use flash::Flash;
-use init::Init;
+use commands::{build::Build, deps::Deps, flash::Flash, init::Init};
 use runnable::Runnable;
 
 #[derive(Parser, Debug)]
