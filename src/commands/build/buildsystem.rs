@@ -4,10 +4,10 @@ use crate::{project_config::ProjectConfig, util::get_line_of_all_namefiles_in_di
 
 use super::{compiler_interface::CompilerInterface, objcopy_interface::ObjCopyInterface};
 
-pub enum BuildOption {
+pub enum BuildOption<'a> {
     MHz(u8),
-    OptLevel(String),
-    Custom(String),
+    OptLevel(&'a String),
+    Custom(&'a str),
 }
 
 pub struct BuildSystem<'a> {
@@ -27,17 +27,17 @@ impl<'a> BuildSystem<'a> {
         CompilerInterface::new(self.config, self.compiler_arguments.iter())
     }
 
-    pub fn option(&mut self, opt: BuildOption) -> &mut Self {
+    pub fn option(&mut self, opt: BuildOption<'a>) -> &mut Self {
         self.compiler_arguments.push(match opt {
             BuildOption::MHz(mhz) => format!("-DF_CPU={}000000UL", mhz),
             BuildOption::OptLevel(lvl) => format!("-O{}", lvl),
-            BuildOption::Custom(custom) => custom,
+            BuildOption::Custom(custom) => custom.to_string(),
         });
 
         self
     }
 
-    pub fn option_from(&mut self, opt: Option<BuildOption>) -> &mut Self {
+    pub fn option_from(&mut self, opt: Option<BuildOption<'a>>) -> &mut Self {
         opt.map(|opt| self.option(opt));
         self
     }

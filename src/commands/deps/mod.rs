@@ -29,6 +29,8 @@ pub struct Deps {
 
 impl Runnable for Deps {
     fn run(self) -> Result<(), Box<dyn std::error::Error>> {
+        use BuildOption::*;
+
         let config = ProjectConfig::read_from_file("yug.toml")?;
 
         let _ = fs::create_dir("vendor");
@@ -63,12 +65,12 @@ impl Runnable for Deps {
 
             let mut build_system = BuildSystem::new(&config);
             build_system
-                .option(BuildOption::Custom("-c".to_string()))
-                .option_from(self.opt_level.clone().map(BuildOption::OptLevel));
+                .option(Custom("-c"))
+                .option_from(self.opt_level.as_ref().map(OptLevel));
 
             let mut compiler_interface = build_system.get_compiler();
             compiler_interface
-                .option(CompilerOptions::Languge(language.clone()))
+                .option(CompilerOptions::Languge(language))
                 .output(format!("vendor/{name}/obj/{name}.o"));
 
             handle_output(self.watch, compiler_interface.compile());

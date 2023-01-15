@@ -30,12 +30,14 @@ impl Runnable for Build {
 
 impl Build {
     fn compile_project(&self, config: &ProjectConfig) {
+        use BuildOption::*;
+
         let _ = fs::create_dir(&config.structure.builds);
 
         let mut build_system = BuildSystem::new(config);
         build_system
-            .option_from(self.mhz.map(BuildOption::MHz))
-            .option_from(self.opt_level.clone().map(BuildOption::OptLevel));
+            .option_from(self.mhz.map(MHz))
+            .option_from(self.opt_level.as_ref().map(OptLevel));
 
         // Compilation of project
         handle_output(self.watch, build_system.compile());

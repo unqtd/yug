@@ -7,8 +7,8 @@ use crate::{
     util::sh,
 };
 
-pub enum CompilerOptions {
-    Languge(Language),
+pub enum CompilerOptions<'a> {
+    Languge(&'a Language),
 }
 
 pub struct CompilerInterface<'a> {
@@ -16,7 +16,7 @@ pub struct CompilerInterface<'a> {
     arguments: String,
     inputs: Vec<&'a str>,
     output: String,
-    languge: Option<Language>,
+    languge: Option<&'a Language>,
 }
 
 impl<'a> CompilerInterface<'a> {
@@ -43,7 +43,7 @@ impl<'a> CompilerInterface<'a> {
         self
     }
 
-    pub fn option(&mut self, opt: CompilerOptions) -> &mut Self {
+    pub fn option(&mut self, opt: CompilerOptions<'a>) -> &mut Self {
         match opt {
             CompilerOptions::Languge(lang) => self.languge = Some(lang),
         };
@@ -66,7 +66,6 @@ impl<'a> CompilerInterface<'a> {
             "{cc} -Wall -Os {customs} -Ivendor -I{headers} -mmcu={arch} -o {builds} {sources}",
             cc = self
                 .languge
-                .as_ref()
                 .unwrap_or(&self.config.firmware.language)
                 .compiler(),
             customs = self.arguments,
