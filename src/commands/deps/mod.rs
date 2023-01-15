@@ -10,7 +10,7 @@ use crate::{
     },
     project_config::ProjectConfig,
     runnable::Runnable,
-    util::{handle_output, report_error, sh},
+    util::{execute_command, handle_output, report_error, ExecutionMode},
 };
 
 use self::dependence::Dependence;
@@ -56,9 +56,10 @@ impl Runnable for Deps {
             // Not to use!
 
             // Copying
-            report_error(sh(
+            report_error(execute_command(
                 format!("cp {headers} vendor/{name}", headers = headers, name = name).as_str(),
                 "Failed to copy headers",
+                ExecutionMode::Output,
             ));
 
             // Compilation of dependence

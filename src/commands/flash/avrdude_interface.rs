@@ -1,6 +1,9 @@
-use std::process::{Command, Output};
+use std::process::Output;
 
-use crate::project_config::ProjectConfig;
+use crate::{
+    project_config::ProjectConfig,
+    util::{execute_command, ExecutionMode},
+};
 
 pub enum AvrDudeOption<'a> {
     BitClock(u8),
@@ -45,15 +48,10 @@ impl<'a> AvrDudeInterface<'a> {
     pub fn load(self) -> (Output, String) {
         let command = self.format_command();
 
-        let output = Command::new("sh")
-            .arg("-c")
-            .arg(&command)
-            .spawn()
-            .expect("Failed to avrdude")
-            .wait_with_output()
-            .unwrap();
-
-        (output, command)
+        (
+            execute_command(&command, "Failed to avrdude", ExecutionMode::Spawn),
+            command,
+        )
     }
 
     fn format_command(&self) -> String {

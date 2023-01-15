@@ -4,12 +4,29 @@ use colored::Colorize;
 use glob::glob;
 use itertools::Itertools;
 
-pub fn sh(str: &str, expected: &str) -> Output {
-    Command::new("sh")
-        .arg("-c")
-        .arg(str)
-        .output()
+pub enum ExecutionMode {
+    Output,
+    Spawn,
+}
+
+pub fn execute_command(str: &str, expected: &str, mode: ExecutionMode) -> Output {
+    if let (&[prog], args) = str
+        .split(" ")
+        .filter(|x| !x.is_empty())
+        .collect_vec()
+        .split_at(1)
+    {
+        let mut command = Command::new(prog);
+        command.args(args);
+
+        match mode {
+            ExecutionMode::Output => command.output(),
+            ExecutionMode::Spawn => command.spawn().and_then(|x| x.wait_with_output()),
+        }
         .expect(expected)
+    } else {
+        todo!()
+    }
 }
 
 pub fn get_line_of_all_namefiles_in_dir_with_ext(directory: &str, ext: &str) -> String {

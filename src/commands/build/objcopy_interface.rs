@@ -1,6 +1,9 @@
 use std::process::Output;
 
-use crate::{project_config::ProjectConfig, util::sh};
+use crate::{
+    project_config::ProjectConfig,
+    util::{execute_command, ExecutionMode},
+};
 
 pub struct ObjCopyInterface<'a> {
     config: &'a ProjectConfig,
@@ -15,7 +18,11 @@ impl<'a> ObjCopyInterface<'a> {
         let command = self.format_command();
 
         (
-            sh(&command, "Failed to execute avr-objcopy command"),
+            execute_command(
+                &command,
+                "Failed to execute avr-objcopy command",
+                ExecutionMode::Output,
+            ),
             command,
         )
     }

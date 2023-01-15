@@ -4,7 +4,7 @@ use itertools::Itertools;
 
 use crate::{
     project_config::{Language, ProjectConfig},
-    util::sh,
+    util::{execute_command, ExecutionMode},
 };
 
 pub enum CompilerOptions<'a> {
@@ -56,7 +56,11 @@ impl<'a> CompilerInterface<'a> {
         let command = self.command_format();
 
         (
-            sh(&command, "Failed to execute avr-gcc/avr-g++ command"),
+            execute_command(
+                &command,
+                "Failed to execute avr-gcc/avr-g++ command",
+                ExecutionMode::Output,
+            ),
             command,
         )
     }
