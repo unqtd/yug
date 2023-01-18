@@ -64,7 +64,7 @@ impl Runnable for Init {
 
         // Create a include directory for headers
         if self.dev {
-            self.create_clangd(&directory, &config);
+            self.create_clangd(&directory);
 
             let include_path = format!("{}/{}", &directory, &config.structure.includes);
             let _ = fs::create_dir(&include_path);

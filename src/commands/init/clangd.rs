@@ -1,30 +1,16 @@
-use crate::project_config::ProjectConfig;
-
 use super::{write_file, Init};
 
 impl Init {
-    pub fn create_clangd(&self, directory: &str, config: &ProjectConfig) {
-        let mut includes = vec![];
-
-        includes.push(format!("../{}", &config.structure.includes));
-
-        write_file(
-            format!("{}/.clangd", &directory),
-            format!(
-                r#"
+    pub fn create_clangd(&self, directory: &str) {
+        let source = r#"
 CompileFlags:
   Add:
     - "-I/usr/lib/avr/include"
     - "-I../vendor"
-{}
-                "#,
-                includes
-                    .iter()
-                    .map(|incl| format!("    - \"-I{}\"", incl))
-                    .collect::<Vec<_>>()
-                    .join("\n")
-            )
-            .trim(),
-        )
+    - "-I../include"
+    "#
+        .trim();
+
+        write_file(format!("{}/.clangd", directory), source)
     }
 }
