@@ -10,11 +10,11 @@ use runnable::Runnable;
 
 #[derive(Parser, Debug)]
 #[command(author = "dx3mod")]
-#[command(version = "0.1.7")]
-#[command(about = "Your servant for playing with AVR micro-controllers.")]
-#[command(
-    long_about = r"A tool for building projects, working with dependencies, simplified work with the loader."
-)]
+#[command(version = "0.1.8")]
+#[command(about = "Ваш верный слуга для игры с микроконтроллерами")]
+// #[command(
+//     long_about = r"A tool for building projects, working with dependencies, simplified work with the loader."
+// )]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
@@ -30,13 +30,13 @@ fn main() {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Initializes a new project
+    /// Создать новый проект
     Init(Init),
-    /// Compiles the current project
+    /// Компиляция текущего проекта
     Build(Build),
-    /// Download the firmware to the microcontroller
+    /// Прошить МК
     Flash(Flash),
-    /// Install dependencies
+    /// Установка внешних библиотек
     Deps(Deps),
 }
 

@@ -10,13 +10,13 @@ pub mod objcopy_interface;
 
 #[derive(Args, Debug)]
 pub struct Build {
-    /// Sets the clock frequency in megahertz
+    /// Установить частоту МК
     #[arg(long)]
     mhz: Option<u8>,
-    /// Displays all the commands used for the build
+    /// Вывести лог всех использованных команд
     #[arg(long)]
     watch: bool,
-    /// Choosing the optimization level
+    /// Указать уровень оптимизаций
     #[arg(long)]
     opt_level: Option<String>,
 }

@@ -8,20 +8,20 @@ use self::avrdude_interface::{AvrDudeInterface, AvrDudeOption};
 
 #[derive(Args, Debug)]
 pub struct Flash {
-    /// Programmer type
+    /// Тип программатора
     #[arg(short, long)]
     programmer: String,
     /// Целевой МК. По-умолчанию берётся из конфигурации
     #[arg(short, long)]
     target: Option<String>,
-    /// The port on which the programmer hangs
+    /// Порт используемый программатором
     #[arg(long)]
     port: Option<String>,
     #[arg(long)]
     bitrate: Option<u8>,
     #[arg(long)]
     bitclock: Option<u8>,
-    /// Displays all the commands used for the build
+    /// Вывести лог всех использованных команд
     #[arg(long)]
     watch: bool,
 }

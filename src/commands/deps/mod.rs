@@ -19,10 +19,10 @@ pub mod dependence;
 
 #[derive(Args, Debug)]
 pub struct Deps {
-    /// Choosing the optimization level
+    /// Указать уровень оптимизаций
     #[arg(long)]
     opt_level: Option<String>,
-    /// Displays all the commands used for the build
+    /// Вывести лог всех использованных команд
     #[arg(long)]
     watch: bool,
 }
