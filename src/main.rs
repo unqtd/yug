@@ -10,7 +10,7 @@ use runnable::Runnable;
 
 #[derive(Parser, Debug)]
 #[command(author = "dx3mod")]
-#[command(version = "0.1.6")]
+#[command(version = "0.1.7")]
 #[command(about = "Your servant for playing with AVR micro-controllers.")]
 #[command(
     long_about = r"A tool for building projects, working with dependencies, simplified work with the loader."
