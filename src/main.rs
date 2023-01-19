@@ -5,12 +5,12 @@ mod util;
 
 use clap::{Parser, Subcommand};
 use colored::*;
-use commands::{build::Build, deps::Deps, flash::Flash, init::Init};
+use commands::{build::Build, flash::Flash, init::Init};
 use runnable::Runnable;
 
 #[derive(Parser, Debug)]
 #[command(author = "dx3mod")]
-#[command(version = "0.1.8")]
+#[command(version = "0.1.9")]
 #[command(about = "Ваш верный слуга для игры с микроконтроллерами")]
 // #[command(
 //     long_about = r"A tool for building projects, working with dependencies, simplified work with the loader."
@@ -36,8 +36,8 @@ enum Commands {
     Build(Build),
     /// Прошить МК
     Flash(Flash),
-    /// Установка внешних библиотек
-    Deps(Deps),
+    // / Установка внешних библиотек
+    // Deps(Deps),
 }
 
 impl Runnable for Commands {
@@ -46,7 +46,7 @@ impl Runnable for Commands {
             Commands::Init(init) => init.run(),
             Commands::Build(build) => build.run(),
             Commands::Flash(flash) => flash.run(),
-            Commands::Deps(deps) => deps.run(),
+            // Commands::Deps(deps) => deps.run(),
         }
     }
 }

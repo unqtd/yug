@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::process::Output;
 
 use crate::{project_config::ProjectConfig, util::get_line_of_all_namefiles_in_dir_with_ext};

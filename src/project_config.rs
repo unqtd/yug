@@ -1,8 +1,6 @@
-use std::{collections::HashMap, error::Error, fs, io::Read};
+use std::{error::Error, fs, io::Read};
 
 use serde::{Deserialize, Serialize};
-
-use crate::commands::deps::dependence::Dependence;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectConfig {
@@ -13,9 +11,6 @@ pub struct ProjectConfig {
     #[serde(skip_serializing)]
     #[serde(default)]
     pub compiler: Compiler,
-    #[serde(skip_serializing)]
-    #[serde(default)]
-    pub dependencies: HashMap<String, Dependence>,
 }
 
 /////////////////////////////////////////////////////
