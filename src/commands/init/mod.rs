@@ -69,14 +69,10 @@ impl Init {
         utils::create_dir(&path)?;
 
         utils::write_str_to_file(
-            &format!(
-                "{}/main.{ext}",
-                path,
-                ext = config.firmware.language.to_str()
-            ),
+            &format!("{path}/main.{ext}", ext = config.firmware.language.to_str()),
             format!(
                 r#"
-{}
+{spec}
 #include <avr/io.h>
 
 int main(void) {{
@@ -85,7 +81,7 @@ int main(void) {{
   }}
 }}
             "#,
-                if self.dev { "#include \"spec.h\"" } else { "" }
+                spec = if self.dev { "#include \"spec.h\"" } else { "" }
             )
             .trim(),
         )
@@ -93,7 +89,7 @@ int main(void) {{
 
     fn create_spec_file(&self, path: &str) -> Result<(), String> {
         utils::write_str_to_file(
-            &format!("{}/spec.h", path),
+            &format!("{path}/spec.h"),
             format!(
                 r#"
 #ifndef __AVR_{avr}__
@@ -135,11 +131,11 @@ mod utils {
 
     pub fn write_str_to_file(filename: &str, content: &str) -> Result<(), String> {
         let mut file = File::create(filename).map_err(|_| format!("{filename} уже существует!"))?;
-        writeln!(&mut file, "{}", content)
+        writeln!(&mut file, "{content}")
             .map_err(|_| format!("Ошибка при попытке записи в файл {}!", filename))
     }
 
     pub fn create_dir(path: &str) -> Result<(), String> {
-        fs::create_dir(path).map_err(|_| format!("Директория {} уже существует!", path))
+        fs::create_dir(path).map_err(|_| format!("Директория {path} уже существует!"))
     }
 }

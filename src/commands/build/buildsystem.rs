@@ -31,8 +31,8 @@ impl<'a> BuildSystem<'a> {
 
     pub fn option(&mut self, opt: BuildOption<'a>) -> &mut Self {
         self.compiler_arguments.push(match opt {
-            BuildOption::MHz(mhz) => format!("-DF_CPU={}000000UL", mhz),
-            BuildOption::OptLevel(lvl) => format!("-O{}", lvl),
+            BuildOption::MHz(mhz) => format!("-DF_CPU={mhz}000000UL"),
+            BuildOption::OptLevel(lvl) => format!("-O{lvl}"),
             BuildOption::Custom(custom) => custom.to_string(),
         });
 

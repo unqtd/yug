@@ -99,7 +99,7 @@ impl ProjectConfig {
             file.read_to_string(&mut text_config_file)?;
 
             toml::from_str::<ProjectConfig>(&text_config_file)
-                .map_err(|err| format!("TomlParser: {}", err).into())
+                .map_err(|err| format!("TomlParser: {err}").into())
         } else {
             Err("Not found yug.toml in current directory...".into())
         }

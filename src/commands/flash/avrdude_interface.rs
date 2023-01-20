@@ -29,18 +29,20 @@ impl<'a> AvrDudeInterface<'a> {
     pub fn option(&mut self, opt: AvrDudeOption<'a>) -> &mut Self {
         // dry...
         self.arguments.push(match opt {
-            AvrDudeOption::BitRate(bitrate) => format!("-b{}", bitrate),
-            AvrDudeOption::BitClock(bitclock) => format!("-B{}", bitclock),
-            AvrDudeOption::Port(port) => format!("-P{}", port),
-            AvrDudeOption::Target(target) => format!("-p {}", target),
-            AvrDudeOption::Programer(programmer) => format!("-c{}", programmer),
+            AvrDudeOption::BitRate(bitrate) => format!("-b{bitrate}"),
+            AvrDudeOption::BitClock(bitclock) => format!("-B{bitclock}"),
+            AvrDudeOption::Port(port) => format!("-P{port}"),
+            AvrDudeOption::Target(target) => format!("-p {target}"),
+            AvrDudeOption::Programer(programmer) => format!("-c{programmer}"),
         });
         self
     }
 
     pub fn option_from(&mut self, opt: Option<AvrDudeOption<'a>>) -> &mut Self {
-        opt.map(|x| self.option(x));
-        self
+        match opt {
+            Some(x) => self.option(x),
+            None => self,
+        }
     }
 }
 
