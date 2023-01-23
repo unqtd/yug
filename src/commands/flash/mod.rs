@@ -42,6 +42,7 @@ impl Runnable for Flash {
             .option_from(self.bitrate.map(BitRate))
             .option_from(self.bitclock.map(BitClock));
 
-        Ok(handle_output(self.watch, avrdude.load()))
+        handle_output(self.watch, avrdude.load());
+        Ok(())
     }
 }

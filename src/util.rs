@@ -11,7 +11,7 @@ pub enum ExecutionMode {
 
 pub fn execute_command(str: &str, expected: &str, mode: ExecutionMode) -> Output {
     if let (&[prog], args) = str
-        .split(" ")
+        .split(' ')
         .filter(|x| !x.is_empty())
         .collect_vec()
         .split_at(1)

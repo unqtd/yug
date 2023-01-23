@@ -97,7 +97,7 @@ int main(void) {{
 #endif
 #define F_CPU {}000000UL
                        "#,
-                self.mhz.unwrap_or(1).to_string(),
+                self.mhz.unwrap_or(1),
                 avr = self.target,
             )
             .trim(),

@@ -24,7 +24,8 @@ pub struct Build {
 impl Runnable for Build {
     fn run(self) -> Result<(), Box<dyn Error>> {
         let config = ProjectConfig::read_from_file("yug.toml")?;
-        Ok(self.compile_project(&config))
+        self.compile_project(&config);
+        Ok(())
     }
 }
 
