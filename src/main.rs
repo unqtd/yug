@@ -20,6 +20,17 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
+    if cli.command.is_none() {
+        println!(
+            r#"
+      |\      _,,,---,,_
+ZZZzz /,`.-'`'    -.  ;-;;,_
+     |,4-  ) )-,_. ,\ (  `'-'
+    '---''(_/--'  `-'\_)
+                 "#
+        )
+    }
+
     cli.command
         .into_iter()
         .for_each(|command| match command.run() {
