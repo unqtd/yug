@@ -9,21 +9,16 @@ pub enum ExecutionMode {
     Spawn,
 }
 
-pub fn execute_command(str: &str, expected: &str, mode: ExecutionMode) -> Output {
-    if let (&[prog], args) = str
-        .split(' ')
-        .filter(|x| !x.is_empty())
-        .collect_vec()
-        .split_at(1)
-    {
+pub fn execute_command(cmds: &[&str], mode: ExecutionMode) -> Output {
+    if let (&[prog], args) = cmds.split_at(1) {
         let mut command = Command::new(prog);
-        command.args(args);
+        command.args(args.iter().filter(|s| !s.is_empty()));
 
         match mode {
             ExecutionMode::Output => command.output(),
             ExecutionMode::Spawn => command.spawn().and_then(|x| x.wait_with_output()),
         }
-        .expect(expected)
+        .unwrap_or_else(|_| panic!("Failed to run '{prog}'"))
     } else {
         todo!()
     }

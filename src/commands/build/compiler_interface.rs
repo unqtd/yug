@@ -15,20 +15,20 @@ pub enum CompilerOptions<'a> {
 
 pub struct CompilerInterface<'a> {
     config: &'a ProjectConfig,
-    arguments: String,
+    arguments: Vec<&'a str>,
     inputs: Vec<&'a str>,
     output: String,
     languge: Option<&'a Language>,
 }
 
 impl<'a> CompilerInterface<'a> {
-    pub fn new<I>(config: &'a ProjectConfig, mut arguments: I) -> Self
+    pub fn new<I>(config: &'a ProjectConfig, arguments: I) -> Self
     where
-        I: Iterator<Item = &'a String>,
+        I: Iterator<Item = &'a str>,
     {
         Self {
             config,
-            arguments: arguments.join(" "),
+            arguments: arguments.collect_vec(),
             inputs: Vec::new(),
             output: format!("{}/firmware.elf", config.structure.builds),
             languge: None,
@@ -55,30 +55,27 @@ impl<'a> CompilerInterface<'a> {
 
 impl<'a> CompilerInterface<'a> {
     pub fn compile(self) -> (Output, String) {
-        let command = self.command_format();
+        let headers = format!("-I{}", self.config.structure.includes);
+        let mmcu = format!("-mmcu={}", self.config.firmware.target.to_lowercase());
 
-        (
-            execute_command(
-                &command,
-                "Failed to execute avr-gcc/avr-g++ command",
-                ExecutionMode::Output,
-            ),
-            command,
-        )
-    }
-
-    pub fn command_format(&self) -> String {
-        format!(
-            "{cc} -Wall -Os {customs} -Ivendor -I{headers} -mmcu={arch} -o {builds} {sources}",
-            cc = self
+        let mut command = vec![
+            (self
                 .languge
                 .unwrap_or(&self.config.firmware.language)
-                .compiler(),
-            customs = self.arguments,
-            headers = self.config.structure.includes,
-            arch = self.config.firmware.target.to_lowercase(),
-            builds = self.output,
-            sources = self.inputs.join(" ")
+                .compiler()),
+            "-Wall",
+            "-Os",
+            "-Ivendor",
+            &headers,
+            &mmcu,
+            "-o",
+            &self.output,
+        ];
+        command.extend(self.inputs);
+
+        (
+            execute_command(&command, ExecutionMode::Output),
+            command.join(" "),
         )
     }
 }

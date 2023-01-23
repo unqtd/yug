@@ -48,19 +48,14 @@ impl<'a> AvrDudeInterface<'a> {
 
 impl<'a> AvrDudeInterface<'a> {
     pub fn load(self) -> (Output, String) {
-        let command = self.format_command();
+        let uflash = format!("-Uflash:w:{}/firmware.hex:i", self.config.structure.builds);
+
+        let mut command = vec!["avrdude", uflash.as_str()];
+        command.extend(self.arguments.iter().map(|x| x.as_str()));
 
         (
-            execute_command(&command, "Failed to avrdude", ExecutionMode::Spawn),
-            command,
-        )
-    }
-
-    fn format_command(&self) -> String {
-        format!(
-            "avrdude {args} -Uflash:w:{builds}/firmware.hex:i",
-            args = self.arguments.join(" "),
-            builds = self.config.structure.builds
+            execute_command(&command, ExecutionMode::Spawn),
+            command.join(" "),
         )
     }
 }

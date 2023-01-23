@@ -26,7 +26,10 @@ impl<'a> BuildSystem<'a> {
     }
 
     pub fn get_compiler(&self) -> CompilerInterface {
-        CompilerInterface::new(self.config, self.compiler_arguments.iter())
+        CompilerInterface::new(
+            self.config,
+            self.compiler_arguments.iter().map(|x| x.as_str()),
+        )
     }
 
     pub fn option(&mut self, opt: BuildOption<'a>) -> &mut Self {

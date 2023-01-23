@@ -15,22 +15,22 @@ impl<'a> ObjCopyInterface<'a> {
     }
 
     pub fn doit(self) -> (Output, String) {
-        let command = self.format_command();
+        let builds = &self.config.structure.builds;
+        let command = [
+            "avr-objcopy",
+            "-j",
+            ".text",
+            "-j",
+            ".data",
+            "-O",
+            "ihex",
+            &format!("{builds}/firmware.elf"),
+            &format!("{builds}/firmware.hex"),
+        ];
 
         (
-            execute_command(
-                &command,
-                "Failed to execute avr-objcopy command",
-                ExecutionMode::Output,
-            ),
-            command,
-        )
-    }
-
-    fn format_command(&self) -> String {
-        format!(
-            "avr-objcopy -j .text -j .data -O ihex {builds}/firmware.elf {builds}/firmware.hex",
-            builds = self.config.structure.builds
+            execute_command(&command, ExecutionMode::Output),
+            command.join(" "),
         )
     }
 }
