@@ -1,4 +1,4 @@
-use std::{error::Error, fs, io::Read};
+use std::{collections::HashMap, error::Error, fs, io::Read};
 
 use serde::{Deserialize, Serialize};
 
@@ -11,6 +11,9 @@ pub struct ProjectConfig {
     #[serde(skip_serializing)]
     #[serde(default)]
     pub compiler: Compiler,
+    #[serde(skip_serializing)]
+    #[serde(default)]
+    pub utils: Utils,
 }
 
 /////////////////////////////////////////////////////
@@ -45,6 +48,12 @@ pub struct Compiler {
     pub custom: String,
     // #[serde(rename = "opt-level")]
     // pub opt_level: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct Utils {
+    #[serde(flatten)]
+    pub utils: HashMap<String, String>,
 }
 
 /////////////////////////////////////////////////////

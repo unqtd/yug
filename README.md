@@ -20,6 +20,11 @@ apt install gcc-avr avr-libc avrdude
 cargo install --git https://github.com/dx3mod/yug.git
 ```
 
+### Документация
+
+Команды:
+* [`util`](./doc.md#Util)
+
 ### Использование
 
 Хорошо. Давайте познакомимся с базовыми функциями и возможности вашего слуги на примере 

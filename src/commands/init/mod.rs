@@ -59,6 +59,7 @@ impl Init {
             },
             structure: Structure::default(),
             compiler: Compiler::default(),
+            utils: Default::default(),
         }
     }
 }

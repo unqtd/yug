@@ -5,7 +5,7 @@ mod util;
 
 use clap::{Parser, Subcommand};
 use colored::*;
-use commands::{build::Build, flash::Flash, init::Init};
+use commands::{build::Build, flash::Flash, init::Init, util::Util};
 use runnable::Runnable;
 
 #[derive(Parser, Debug)]
@@ -36,6 +36,8 @@ enum Commands {
     Build(Build),
     /// Прошить МК
     Flash(Flash),
+    /// Выполнение пользовательской команды
+    Util(Util),
 }
 
 impl Runnable for Commands {
@@ -44,6 +46,7 @@ impl Runnable for Commands {
             Commands::Init(init) => init.run(),
             Commands::Build(build) => build.run(),
             Commands::Flash(flash) => flash.run(),
+            Commands::Util(util) => util.run(),
         }
     }
 }
