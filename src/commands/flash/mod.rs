@@ -9,7 +9,7 @@ use self::avrdude_interface::{AvrDudeInterface, AvrDudeOption};
 #[derive(Args, Debug)]
 pub struct Flash {
     /// Тип программатора
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "usbasp")]
     programmer: String,
     /// Целевой МК. По-умолчанию берётся из конфигурации
     #[arg(short, long)]

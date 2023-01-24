@@ -10,7 +10,7 @@ use runnable::Runnable;
 
 #[derive(Parser, Debug)]
 #[command(author = "dx3mod")]
-#[command(version = "0.1.4")]
+#[command(version = "0.1.5")]
 #[command(about = "Ваш верный слуга для игры с микроконтроллерами")]
 struct Cli {
     #[command(subcommand)]
@@ -19,17 +19,6 @@ struct Cli {
 
 fn main() {
     let cli = Cli::parse();
-
-    if cli.command.is_none() {
-        println!(
-            r#"
-      |\      _,,,---,,_
-ZZZzz /,`.-'`'    -.  ;-;;,_
-     |,4-  ) )-,_. ,\ (  `'-'
-    '---''(_/--'  `-'\_)
-                 "#
-        )
-    }
 
     cli.command
         .into_iter()
