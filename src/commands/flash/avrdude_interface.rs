@@ -5,6 +5,7 @@ use crate::{
     util::{execute_command, ExecutionMode},
 };
 
+#[derive(Clone, Copy)]
 pub enum AvrDudeOption<'a> {
     BitClock(u8),
     BitRate(u8),
@@ -19,7 +20,7 @@ pub struct AvrDudeInterface<'a> {
 }
 
 impl<'a> AvrDudeInterface<'a> {
-    pub fn new(config: &'a ProjectConfig) -> Self {
+    pub const fn new(config: &'a ProjectConfig) -> Self {
         Self {
             config,
             arguments: Vec::new(),
@@ -32,7 +33,7 @@ impl<'a> AvrDudeInterface<'a> {
             AvrDudeOption::BitRate(bitrate) => format!("-b{bitrate}"),
             AvrDudeOption::BitClock(bitclock) => format!("-B{bitclock}"),
             AvrDudeOption::Port(port) => format!("-P{port}"),
-            AvrDudeOption::Target(target) => format!("-p {target}"),
+            AvrDudeOption::Target(target) => format!("-p{target}"),
             AvrDudeOption::Programer(programmer) => format!("-c{programmer}"),
         });
         self
@@ -51,7 +52,7 @@ impl<'a> AvrDudeInterface<'a> {
         let uflash = format!("-Uflash:w:{}/firmware.hex:i", self.config.structure.builds);
 
         let mut command = vec!["avrdude", uflash.as_str()];
-        command.extend(self.arguments.iter().map(|x| x.as_str()));
+        command.extend(self.arguments.iter().map(String::as_str));
 
         (
             execute_command(&command, ExecutionMode::Spawn),

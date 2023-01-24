@@ -6,6 +6,7 @@ use crate::{project_config::ProjectConfig, util::get_line_of_all_namefiles_in_di
 
 use super::{compiler_interface::CompilerInterface, objcopy_interface::ObjCopyInterface};
 
+#[derive(Clone, Copy)]
 pub enum BuildOption<'a> {
     MHz(u8),
     OptLevel(&'a String),
@@ -18,7 +19,7 @@ pub struct BuildSystem<'a> {
 }
 
 impl<'a> BuildSystem<'a> {
-    pub fn new(config: &'a ProjectConfig) -> Self {
+    pub const fn new(config: &'a ProjectConfig) -> Self {
         Self {
             config,
             compiler_arguments: Vec::new(),
@@ -28,7 +29,7 @@ impl<'a> BuildSystem<'a> {
     pub fn get_compiler(&self) -> CompilerInterface {
         CompilerInterface::new(
             self.config,
-            self.compiler_arguments.iter().map(|x| x.as_str()),
+            self.compiler_arguments.iter().map(String::as_str),
         )
     }
 

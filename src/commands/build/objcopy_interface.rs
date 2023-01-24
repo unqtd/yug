@@ -10,8 +10,8 @@ pub struct ObjCopyInterface<'a> {
 }
 
 impl<'a> ObjCopyInterface<'a> {
-    pub fn new(config: &'a ProjectConfig) -> Self {
-        ObjCopyInterface { config }
+    pub const fn new(config: &'a ProjectConfig) -> Self {
+        Self { config }
     }
 
     pub fn doit(self) -> (Output, String) {

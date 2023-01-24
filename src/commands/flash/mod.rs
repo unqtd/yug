@@ -28,7 +28,7 @@ pub struct Flash {
 
 impl Runnable for Flash {
     fn run(self) -> Result<(), Box<dyn std::error::Error>> {
-        use AvrDudeOption::*;
+        use AvrDudeOption::{BitClock, BitRate, Port, Programer, Target};
 
         let config = ProjectConfig::read_from_file("yug.toml")?;
 
@@ -42,7 +42,6 @@ impl Runnable for Flash {
             .option_from(self.bitrate.map(BitRate))
             .option_from(self.bitclock.map(BitClock));
 
-        handle_output(self.watch, avrdude.load());
-        Ok(())
+        handle_output(self.watch, avrdude.load()).map_err(Into::into)
     }
 }

@@ -59,31 +59,31 @@ pub struct Utils {
 /////////////////////////////////////////////////////
 
 impl Language {
-    fn is_c(&self) -> bool {
+    const fn is_c(&self) -> bool {
         match self {
-            Language::C => true,
-            Language::Cpp => false,
+            Self::C => true,
+            Self::Cpp => false,
         }
     }
 
-    pub fn compiler(&self) -> &'static str {
+    pub const fn compiler(&self) -> &'static str {
         match self {
-            Language::C => "avr-gcc",
-            Language::Cpp => "avr-g++",
+            Self::C => "avr-gcc",
+            Self::Cpp => "avr-g++",
         }
     }
 
-    pub fn to_str(&self) -> &'static str {
+    pub const fn to_str(&self) -> &'static str {
         match self {
-            Language::C => "c",
-            Language::Cpp => "cpp",
+            Self::C => "c",
+            Self::Cpp => "cpp",
         }
     }
 }
 
 impl Default for Language {
-    fn default() -> Language {
-        Language::C
+    fn default() -> Self {
+        Self::C
     }
 }
 
@@ -91,7 +91,7 @@ impl Default for Language {
 
 impl Default for Structure {
     fn default() -> Self {
-        Structure {
+        Self {
             sources: "src".to_string(),
             builds: "_build".to_string(),
             includes: "include".to_string(),
@@ -102,13 +102,12 @@ impl Default for Structure {
 /////////////////////////////////////////////////////
 
 impl ProjectConfig {
-    pub fn read_from_file(path: &str) -> Result<ProjectConfig, Box<dyn Error>> {
+    pub fn read_from_file(path: &str) -> Result<Self, Box<dyn Error>> {
         if let Ok(mut file) = fs::File::open(path) {
             let mut text_config_file = String::new();
             file.read_to_string(&mut text_config_file)?;
 
-            toml::from_str::<ProjectConfig>(&text_config_file)
-                .map_err(|err| format!("TomlParser: {err}").into())
+            toml::from_str(&text_config_file).map_err(|err| format!("TomlParser: {err}").into())
         } else {
             Err("Not found yug.toml in current directory...".into())
         }

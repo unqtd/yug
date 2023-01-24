@@ -1,7 +1,7 @@
 use clap::Args;
 
 use crate::{
-    project_config::{Compiler, Firmware, Language, ProjectConfig, Structure},
+    project_config::{Compiler, Firmware, Language, ProjectConfig, Structure, Utils},
     runnable::Runnable,
 };
 
@@ -59,7 +59,7 @@ impl Init {
             },
             structure: Structure::default(),
             compiler: Compiler::default(),
-            utils: Default::default(),
+            utils: Utils::default(),
         }
     }
 }
@@ -133,7 +133,7 @@ mod utils {
     pub fn write_str_to_file(filename: &str, content: &str) -> Result<(), String> {
         let mut file = File::create(filename).map_err(|_| format!("{filename} уже существует!"))?;
         writeln!(&mut file, "{content}")
-            .map_err(|_| format!("Ошибка при попытке записи в файл {}!", filename))
+            .map_err(|_| format!("Ошибка при попытке записи в файл {filename}!"))
     }
 
     pub fn create_dir(path: &str) -> Result<(), String> {

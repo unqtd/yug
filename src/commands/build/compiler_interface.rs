@@ -9,7 +9,8 @@ use crate::{
     util::{execute_command, ExecutionMode},
 };
 
-pub enum CompilerOptions<'a> {
+#[derive(Clone, Copy)]
+pub enum CompilerOption<'a> {
     Languge(&'a Language),
 }
 
@@ -45,9 +46,9 @@ impl<'a> CompilerInterface<'a> {
         self
     }
 
-    pub fn option(&mut self, opt: CompilerOptions<'a>) -> &mut Self {
+    pub fn option(&mut self, opt: CompilerOption<'a>) -> &mut Self {
         match opt {
-            CompilerOptions::Languge(lang) => self.languge = Some(lang),
+            CompilerOption::Languge(lang) => self.languge = Some(lang),
         };
         self
     }

@@ -24,16 +24,16 @@ pub struct Build {
 impl Runnable for Build {
     fn run(self) -> Result<(), Box<dyn Error>> {
         let config = ProjectConfig::read_from_file("yug.toml")?;
-        self.compile_project(&config);
+        self.compile_project(&config)?;
         Ok(())
     }
 }
 
 impl Build {
-    fn compile_project(&self, config: &ProjectConfig) {
-        use BuildOption::*;
+    fn compile_project(&self, config: &ProjectConfig) -> Result<(), String> {
+        use BuildOption::{MHz, OptLevel};
 
-        let _ = fs::create_dir(&config.structure.builds);
+        fs::create_dir(&config.structure.builds).unwrap_or(());
 
         let mut build_system = BuildSystem::new(config);
         build_system
@@ -41,11 +41,11 @@ impl Build {
             .option_from(self.opt_level.as_ref().map(OptLevel));
 
         // Compilation of project
-        handle_output(self.watch, build_system.compile());
+        handle_output(self.watch, build_system.compile())?;
 
         // Proccessing by objcopy
-        handle_output(self.watch, build_system.objcopy());
+        handle_output(self.watch, build_system.objcopy())?;
 
-        println!("Compiled.")
+        Ok(println!("Проект был успешно собран."))
     }
 }

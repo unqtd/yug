@@ -1,9 +1,10 @@
-use std::process::{exit, Command, Output};
+use std::process::{Command, Output};
 
 use colored::Colorize;
 use glob::glob;
 use itertools::Itertools;
 
+#[derive(Clone, Copy)]
 pub enum ExecutionMode {
     Output,
     Spawn,
@@ -16,7 +17,9 @@ pub fn execute_command(cmds: &[&str], mode: ExecutionMode) -> Output {
 
         match mode {
             ExecutionMode::Output => command.output(),
-            ExecutionMode::Spawn => command.spawn().and_then(|x| x.wait_with_output()),
+            ExecutionMode::Spawn => command
+                .spawn()
+                .and_then(std::process::Child::wait_with_output),
         }
         .unwrap_or_else(|_| panic!("Failed to run '{prog}'"))
     } else {
@@ -25,7 +28,7 @@ pub fn execute_command(cmds: &[&str], mode: ExecutionMode) -> Output {
 }
 
 pub fn get_line_of_all_namefiles_in_dir_with_ext(directory: &str, ext: &str) -> String {
-    let xs = glob(&format!("{}/**/*.{}", directory, ext)).expect("Failed to read glob pattern");
+    let xs = glob(&format!("{directory}/**/*.{ext}")).expect("Failed to read glob pattern");
 
     Itertools::intersperse(
         xs.map(|file| file.unwrap().display().to_string()),
@@ -34,17 +37,17 @@ pub fn get_line_of_all_namefiles_in_dir_with_ext(directory: &str, ext: &str) -> 
     .collect()
 }
 
-pub fn report_error(output: Output) {
-    if !output.stderr.is_empty() {
-        eprint!("{}", String::from_utf8(output.stderr).unwrap().red());
-        exit(1);
-    }
-}
-
-pub fn handle_output(watch: bool, (output, cmd): (Output, String)) {
+pub fn handle_output(watch: bool, (output, cmd): (Output, String)) -> Result<(), String> {
     if watch {
-        println!("{}", cmd.trim())
+        println!("{}", format!("|> {}", cmd.trim()).blue());
     }
 
-    report_error(output)
+    if output.stderr.is_empty() {
+        Ok(())
+    } else {
+        Err(format!(
+            "{}",
+            String::from_utf8(output.stderr).unwrap().trim_end().red()
+        ))
+    }
 }

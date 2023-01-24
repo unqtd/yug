@@ -4,7 +4,7 @@ mod runnable;
 mod util;
 
 use clap::{Parser, Subcommand};
-use colored::*;
+use colored::Colorize;
 use commands::{build::Build, flash::Flash, init::Init, util::Util};
 use runnable::Runnable;
 
@@ -20,12 +20,9 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
-    cli.command
-        .into_iter()
-        .for_each(|command| match command.run() {
-            Ok(()) => {}
-            Err(err) => eprintln!("{}", err.to_string().red()),
-        });
+    if let Some(Err(err)) = cli.command.map(Runnable::run) {
+        eprintln!("{}", err.to_string().red());
+    }
 }
 
 #[derive(Subcommand, Debug)]
@@ -43,10 +40,10 @@ enum Commands {
 impl Runnable for Commands {
     fn run(self) -> Result<(), Box<dyn std::error::Error>> {
         match self {
-            Commands::Init(init) => init.run(),
-            Commands::Build(build) => build.run(),
-            Commands::Flash(flash) => flash.run(),
-            Commands::Util(util) => util.run(),
+            Self::Init(init) => init.run(),
+            Self::Build(build) => build.run(),
+            Self::Flash(flash) => flash.run(),
+            Self::Util(util) => util.run(),
         }
     }
 }
