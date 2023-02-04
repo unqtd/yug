@@ -2,8 +2,6 @@
 
 use std::process::Output;
 
-use itertools::Itertools;
-
 use crate::{
     project_config::{Language, ProjectConfig},
     util::{execute_command, ExecutionMode},
@@ -29,7 +27,7 @@ impl<'a> CompilerInterface<'a> {
     {
         Self {
             config,
-            arguments: arguments.collect_vec(),
+            arguments: arguments.collect(),
             inputs: Vec::new(),
             output: format!("{}/firmware.elf", config.structure.builds),
             languge: None,

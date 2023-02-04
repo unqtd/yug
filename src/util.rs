@@ -2,7 +2,6 @@ use std::process::{Command, Output};
 
 use colored::Colorize;
 use glob::glob;
-use itertools::Itertools;
 
 #[derive(Clone, Copy)]
 pub enum ExecutionMode {
@@ -28,13 +27,12 @@ pub fn execute_command(cmds: &[&str], mode: ExecutionMode) -> Output {
 }
 
 pub fn get_line_of_all_namefiles_in_dir_with_ext(directory: &str, ext: &str) -> String {
-    let xs = glob(&format!("{directory}/**/*.{ext}")).expect("Failed to read glob pattern");
+    let filenames = glob(&format!("{directory}/**/*.{ext}"))
+        .expect("Failed to read glob pattern")
+        .map(|filename| filename.unwrap().display().to_string());
 
-    Itertools::intersperse(
-        xs.map(|file| file.unwrap().display().to_string()),
-        " ".to_string(),
-    )
-    .collect()
+    // Не оптимально! TODO: Заменить на ленивый функционал.
+    filenames.collect::<Vec<_>>().join(" ")
 }
 
 pub fn handle_output(watch: bool, (output, cmd): (Output, String)) -> Result<(), String> {

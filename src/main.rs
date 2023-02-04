@@ -10,7 +10,7 @@ use runnable::Runnable;
 
 #[derive(Parser, Debug)]
 #[command(author = "dx3mod")]
-#[command(version = "0.1.5")]
+#[command(version = "0.1.6")]
 #[command(about = "Ваш верный слуга для игры с микроконтроллерами")]
 struct Cli {
     #[command(subcommand)]
