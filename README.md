@@ -22,6 +22,8 @@ cargo install --git https://github.com/dx3mod/yug.git
 
 ### Документация
 
+* [Подключение внешних библиотек](./doc.md#ExternLibs)
+
 Команды:
 * [`util`](./doc.md#Util)
 
