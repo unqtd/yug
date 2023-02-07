@@ -5,15 +5,22 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectConfig {
     pub firmware: Firmware,
+
     #[serde(skip_serializing)]
     #[serde(default)]
     pub structure: Structure,
+
     #[serde(skip_serializing)]
     #[serde(default)]
     pub compiler: Compiler,
+
     #[serde(skip_serializing)]
     #[serde(default)]
     pub utils: Utils,
+
+    #[serde(skip_serializing)]
+    #[serde(default)]
+    pub externlibs: HashMap<String, ExternLib>,
 }
 
 /////////////////////////////////////////////////////
@@ -54,6 +61,11 @@ pub struct Compiler {
 pub struct Utils {
     #[serde(flatten)]
     pub utils: HashMap<String, String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ExternLib {
+    pub objs: Vec<String>,
 }
 
 /////////////////////////////////////////////////////

@@ -39,6 +39,11 @@ impl<'a> CompilerInterface<'a> {
         self
     }
 
+    pub fn sources<I: Iterator<Item = &'a str>>(&mut self, src: I) -> &mut Self {
+        self.inputs.extend(src);
+        self
+    }
+
     pub fn output(&mut self, o: String) -> &mut Self {
         self.output = o;
         self
@@ -70,7 +75,7 @@ impl<'a> CompilerInterface<'a> {
             "-o",
             &self.output,
         ];
-        command.extend(self.inputs);
+        command.extend(self.inputs.iter());
 
         (
             execute_command(&command, ExecutionMode::Output),

@@ -52,15 +52,23 @@ impl<'a> BuildSystem<'a> {
 impl<'a> BuildSystem<'a> {
     pub fn compile(&self) -> (Output, String) {
         let mut compiler_interface = self.get_compiler();
+
         let sources = get_line_of_all_namefiles_in_dir_with_ext(
             self.config.structure.sources.as_str(),
             self.config.firmware.language.to_str(),
         );
 
+        let externlibs = self
+            .config
+            .externlibs
+            .iter()
+            .flat_map(|(_, lib)| lib.objs.iter().map(String::as_str));
+
         let objects = get_line_of_all_namefiles_in_dir_with_ext("vendor", "o");
 
         compiler_interface.source(&sources);
         compiler_interface.source(&objects);
+        compiler_interface.sources(externlibs);
 
         compiler_interface.compile()
     }

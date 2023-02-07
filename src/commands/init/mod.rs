@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use clap::Args;
 
 use crate::{
@@ -60,6 +62,7 @@ impl Init {
             structure: Structure::default(),
             compiler: Compiler::default(),
             utils: Utils::default(),
+            externlibs: HashMap::new(),
         }
     }
 }
