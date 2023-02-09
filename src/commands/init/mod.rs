@@ -96,29 +96,28 @@ int main(void) {{
             &format!("{path}/spec.h"),
             format!(
                 r#"
-#ifndef __AVR_{avr}__
-#define __AVR_{avr}__
-#endif
 #define F_CPU {}000000UL
                        "#,
                 self.mhz.unwrap_or(1),
-                avr = self.target,
             )
             .trim(),
         )
     }
 
     fn create_clangd_file(&self) -> Result<(), String> {
-        let source = r#"
+        let source = format!(
+            r#"
 CompileFlags:
   Add:
     - "-I/usr/lib/avr/include"
     - "-I../vendor"
     - "-I../include"
-    "#
-        .trim();
+    - "-D__AVR_{target}__"
+    "#,
+            target = self.target
+        );
 
-        utils::write_str_to_file(&format!("{}/.clangd", self.project_name), source)
+        utils::write_str_to_file(&format!("{}/.clangd", self.project_name), source.trim())
     }
 
     fn create_yug_file(&self, config: &ProjectConfig) -> Result<(), String> {
