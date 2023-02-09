@@ -2,7 +2,7 @@
 
 use std::process::Output;
 
-use crate::{project_config::ProjectConfig, util::get_line_of_all_namefiles_in_dir_with_ext};
+use crate::{project_config::ProjectConfig, util::get_list_namefiles};
 
 use super::{compiler_interface::CompilerInterface, objcopy_interface::ObjCopyInterface};
 
@@ -53,21 +53,24 @@ impl<'a> BuildSystem<'a> {
     pub fn compile(&self) -> (Output, String) {
         let mut compiler_interface = self.get_compiler();
 
-        let sources = get_line_of_all_namefiles_in_dir_with_ext(
+        let sources = get_list_namefiles(
             self.config.structure.sources.as_str(),
             self.config.firmware.language.to_str(),
         );
+
+        let headers = get_list_namefiles(self.config.structure.sources.as_str(), "h");
 
         let externlibs = self
             .config
             .externlibs
             .iter()
-            .flat_map(|(_, lib)| lib.objs.iter().map(String::as_str));
+            .flat_map(|(_, lib)| lib.objs.iter().map(Clone::clone)); // Лишние копирование!
 
-        let objects = get_line_of_all_namefiles_in_dir_with_ext("vendor", "o");
+        let objects = get_list_namefiles("vendor", "o");
 
-        compiler_interface.source(&sources);
-        compiler_interface.source(&objects);
+        compiler_interface.sources(sources);
+        compiler_interface.sources(headers);
+        compiler_interface.sources(objects);
         compiler_interface.sources(externlibs);
 
         compiler_interface.compile()

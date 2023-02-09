@@ -15,7 +15,7 @@ pub enum CompilerOption<'a> {
 pub struct CompilerInterface<'a> {
     config: &'a ProjectConfig,
     arguments: Vec<&'a str>,
-    inputs: Vec<&'a str>,
+    inputs: Vec<String>,
     output: String,
     languge: Option<&'a Language>,
 }
@@ -34,12 +34,12 @@ impl<'a> CompilerInterface<'a> {
         }
     }
 
-    pub fn source(&mut self, src: &'a str) -> &mut Self {
-        self.inputs.push(src);
-        self
-    }
+    // pub fn source(&mut self, src: &'a str) -> &mut Self {
+    //     self.inputs.push(src);
+    //     self
+    // }
 
-    pub fn sources<I: Iterator<Item = &'a str>>(&mut self, src: I) -> &mut Self {
+    pub fn sources<I: Iterator<Item = String>>(&mut self, src: I) -> &mut Self {
         self.inputs.extend(src);
         self
     }
@@ -75,7 +75,7 @@ impl<'a> CompilerInterface<'a> {
             "-o",
             &self.output,
         ];
-        command.extend(self.inputs.iter());
+        command.extend(self.inputs.iter().map(String::as_str));
 
         (
             execute_command(&command, ExecutionMode::Output),

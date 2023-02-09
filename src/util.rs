@@ -26,13 +26,12 @@ pub fn execute_command(cmds: &[&str], mode: ExecutionMode) -> Output {
     }
 }
 
-pub fn get_line_of_all_namefiles_in_dir_with_ext(directory: &str, ext: &str) -> String {
+pub fn get_list_namefiles(directory: &str, ext: &str) -> impl Iterator<Item = String> {
     let filenames = glob(&format!("{directory}/**/*.{ext}"))
         .expect("Failed to read glob pattern")
         .map(|filename| filename.unwrap().display().to_string());
 
-    // Не оптимально! TODO: Заменить на ленивый функционал.
-    filenames.collect::<Vec<_>>().join(" ")
+    filenames
 }
 
 pub fn handle_output(watch: bool, (output, cmd): (Output, String)) -> Result<(), String> {
