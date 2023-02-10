@@ -9,9 +9,7 @@ use commands::{build::Build, flash::Flash, init::Init, util::Util};
 use runnable::Runnable;
 
 #[derive(Parser, Debug)]
-#[command(author = "dx3mod")]
-#[command(version = "0.1.8")]
-#[command(about = "Ваш верный слуга для игры с микроконтроллерами")]
+#[command(about = "Ваш верный слуга для игры с микроконтроллерами.")]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,

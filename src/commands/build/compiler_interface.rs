@@ -7,40 +7,38 @@ use crate::{
     util::{execute_command, ExecutionMode},
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub enum CompilerOption<'a> {
     Languge(&'a Language),
+    OptLevel(String),
+    MHz(u8),
+    Custom(String),
 }
 
 pub struct CompilerInterface<'a> {
     config: &'a ProjectConfig,
-    arguments: Vec<&'a str>,
-    inputs: Vec<String>,
+
+    arguments: Vec<String>,
+    sources: Vec<String>,
+
     output: String,
+
     languge: Option<&'a Language>,
 }
 
 impl<'a> CompilerInterface<'a> {
-    pub fn new<I>(config: &'a ProjectConfig, arguments: I) -> Self
-    where
-        I: Iterator<Item = &'a str>,
-    {
+    pub fn new(config: &'a ProjectConfig) -> Self {
         Self {
             config,
-            arguments: arguments.collect(),
-            inputs: Vec::new(),
+            arguments: Vec::new(),
+            sources: Vec::new(),
             output: format!("{}/firmware.elf", config.structure.builds),
             languge: None,
         }
     }
 
-    // pub fn source(&mut self, src: &'a str) -> &mut Self {
-    //     self.inputs.push(src);
-    //     self
-    // }
-
     pub fn sources<I: Iterator<Item = String>>(&mut self, src: I) -> &mut Self {
-        self.inputs.extend(src);
+        self.sources.extend(src);
         self
     }
 
@@ -52,8 +50,22 @@ impl<'a> CompilerInterface<'a> {
     pub fn option(&mut self, opt: CompilerOption<'a>) -> &mut Self {
         match opt {
             CompilerOption::Languge(lang) => self.languge = Some(lang),
+            option => self.arguments.push(match option {
+                CompilerOption::Languge(_) => unreachable!(),
+                CompilerOption::OptLevel(lvl) => format!("-O{lvl}"),
+                CompilerOption::MHz(mhz) => format!("-DF_CPU={mhz}000000"),
+                CompilerOption::Custom(c) => c,
+            }),
         };
         self
+    }
+
+    pub fn option_from(&mut self, opt: Option<CompilerOption<'a>>) -> &mut Self {
+        if let Some(opt) = opt {
+            self.option(opt)
+        } else {
+            self
+        }
     }
 }
 
@@ -68,14 +80,16 @@ impl<'a> CompilerInterface<'a> {
                 .unwrap_or(&self.config.firmware.language)
                 .compiler()),
             "-Wall",
-            "-Os",
             "-Ivendor",
             &headers,
             &mmcu,
             "-o",
             &self.output,
         ];
-        command.extend(self.inputs.iter().map(String::as_str));
+        // Добавлены к команде на вход sources
+        command.extend(self.sources.iter().map(String::as_str));
+        // Добавлены к команде на вход arguments
+        command.extend(self.arguments.iter().map(String::as_str));
 
         (
             execute_command(&command, ExecutionMode::Output),

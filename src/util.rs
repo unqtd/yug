@@ -36,7 +36,7 @@ pub fn get_list_namefiles(directory: &str, ext: &str) -> impl Iterator<Item = St
 
 pub fn handle_output(watch: bool, (output, cmd): (Output, String)) -> Result<(), String> {
     if watch {
-        println!("{}", format!("|> {}", cmd.trim()).blue());
+        println!("{}", format!("$ {}", cmd.trim()).blue());
     }
 
     if output.stderr.is_empty() {

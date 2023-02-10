@@ -1,10 +1,12 @@
-use crate::{project_config::ProjectConfig, runnable::Runnable, util::handle_output};
+use crate::{
+    commands::build::compiler_interface::CompilerInterface,
+    project_config::ProjectConfig,
+    runnable::Runnable,
+    util::{get_list_namefiles, handle_output},
+};
 use clap::Args;
 use std::{error::Error, fs};
 
-use self::buildsystem::{BuildOption, BuildSystem};
-
-pub mod buildsystem;
 pub mod compiler_interface;
 pub mod objcopy_interface;
 
@@ -31,20 +33,44 @@ impl Runnable for Build {
 
 impl Build {
     fn compile_project(&self, config: &ProjectConfig) -> Result<(), String> {
-        use BuildOption::{MHz, OptLevel};
+        use compiler_interface::CompilerOption::{MHz, OptLevel};
 
         fs::create_dir(&config.structure.builds).unwrap_or(());
 
-        let mut build_system = BuildSystem::new(config);
-        build_system
-            .option_from(self.mhz.map(MHz))
-            .option_from(self.opt_level.as_ref().map(OptLevel));
-
+        /////////////////////////////////////////////////////////
         // Compilation of project
-        handle_output(self.watch, build_system.compile())?;
+        let mut compiler_interface = CompilerInterface::new(config);
+        compiler_interface.option_from(self.mhz.map(MHz));
+        compiler_interface.option(
+            self.opt_level
+                .clone()
+                .map_or_else(|| OptLevel("s".to_string()), OptLevel),
+        );
 
+        let sources = get_list_namefiles(
+            config.structure.sources.as_str(),
+            config.firmware.language.to_str(),
+        );
+
+        let headers = get_list_namefiles(config.structure.sources.as_str(), "h");
+
+        let externlibs = config
+            .externlibs
+            .iter()
+            .flat_map(|(_, lib)| lib.objs.iter().cloned());
+
+        let objects = get_list_namefiles("vendor", "o");
+
+        compiler_interface.sources(sources);
+        compiler_interface.sources(headers);
+        compiler_interface.sources(objects);
+        compiler_interface.sources(externlibs);
+
+        handle_output(self.watch, compiler_interface.compile())?;
+
+        /////////////////////////////////////////////////////////
         // Proccessing by objcopy
-        handle_output(self.watch, build_system.objcopy())?;
+        handle_output(self.watch, objcopy_interface::objcopy(&config.structure.builds))?;
 
         Ok(println!("Проект был успешно собран."))
     }
