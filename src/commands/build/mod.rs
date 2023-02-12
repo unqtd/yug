@@ -33,7 +33,7 @@ impl Runnable for Build {
 
 impl Build {
     fn compile_project(&self, config: &ProjectConfig) -> Result<(), String> {
-        use compiler_interface::CompilerOption::{MHz, OptLevel};
+        use compiler_interface::CompilerOption::{MHz, OptLevel, Custom};
 
         fs::create_dir(&config.structure.builds).unwrap_or(());
 
@@ -65,6 +65,10 @@ impl Build {
         compiler_interface.sources(headers);
         compiler_interface.sources(objects);
         compiler_interface.sources(externlibs);
+
+        for arg in config.compiler.args.iter().cloned() {
+            compiler_interface.option(Custom(arg));
+        }
 
         handle_output(self.watch, compiler_interface.compile())?;
 

@@ -52,7 +52,7 @@ pub struct Structure {
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Compiler {
     #[serde(default)]
-    pub custom: String,
+    pub args: Vec<String>
     // #[serde(rename = "opt-level")]
     // pub opt_level: Option<String>,
 }
