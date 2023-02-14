@@ -91,7 +91,7 @@ CompileFlags:
     fn create_yug_file(&self, config: &ProjectConfig) -> Result<(), String> {
         utils::write_str_to_file(
             &format!("{}/yug.toml", self.project_name),
-            toml::to_string(config).unwrap().trim_end(),
+            toml::to_string_pretty(config).unwrap().trim_end(),
         )
     }
 }

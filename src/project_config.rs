@@ -23,27 +23,25 @@ pub struct ProjectConfig {
 
 /////////////////////////////////////////////////////
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum Language {
-    #[serde(rename = "c")]
-    C,
-    #[serde(rename = "cpp")]
-    Cpp,
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Firmware {
     pub name: String,
-    pub target: Target,
-    #[serde(skip_serializing_if = "Language::is_c")]
-    #[serde(default)]
     pub language: Language,
+    pub target: Target,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Target {
     pub model: String,
     pub mhz: u8,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum Language {
+    #[serde(rename = "c")]
+    C,
+    #[serde(rename = "cpp")]
+    Cpp,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -73,13 +71,6 @@ pub struct ExternLib {
 /////////////////////////////////////////////////////
 
 impl Language {
-    const fn is_c(&self) -> bool {
-        match self {
-            Self::C => true,
-            Self::Cpp => false,
-        }
-    }
-
     pub const fn compiler(&self) -> &'static str {
         match self {
             Self::C => "avr-gcc",
@@ -92,12 +83,6 @@ impl Language {
             Self::C => "c",
             Self::Cpp => "cpp",
         }
-    }
-}
-
-impl Default for Language {
-    fn default() -> Self {
-        Self::C
     }
 }
 
