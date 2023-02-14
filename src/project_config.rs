@@ -6,11 +6,9 @@ use serde::{Deserialize, Serialize};
 pub struct ProjectConfig {
     pub firmware: Firmware,
 
-    #[serde(skip_serializing)]
     #[serde(default)]
     pub structure: Structure,
 
-    #[serde(skip_serializing)]
     #[serde(default)]
     pub compiler: Compiler,
 
