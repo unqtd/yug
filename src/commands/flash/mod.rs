@@ -36,7 +36,9 @@ impl Runnable for Flash {
         avrdude
             .option(Programer(&self.programmer))
             .option(Target(
-                self.target.as_ref().unwrap_or(&config.firmware.target),
+                self.target
+                    .as_ref()
+                    .unwrap_or(&config.firmware.target.model),
             ))
             .option_from(self.port.as_ref().map(Port))
             .option_from(self.bitrate.map(BitRate))

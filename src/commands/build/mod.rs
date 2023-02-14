@@ -33,14 +33,14 @@ impl Runnable for Build {
 
 impl Build {
     fn compile_project(&self, config: &ProjectConfig) -> Result<(), String> {
-        use compiler_interface::CompilerOption::{MHz, OptLevel, Custom};
+        use compiler_interface::CompilerOption::{Custom, MHz, OptLevel};
 
         fs::create_dir(&config.structure.builds).unwrap_or(());
 
         /////////////////////////////////////////////////////////
         // Compilation of project
         let mut compiler_interface = CompilerInterface::new(config);
-        compiler_interface.option_from(self.mhz.map(MHz));
+        compiler_interface.option(MHz(self.mhz.unwrap_or(config.firmware.target.mhz)));
         compiler_interface.option(
             self.opt_level
                 .clone()
@@ -74,7 +74,10 @@ impl Build {
 
         /////////////////////////////////////////////////////////
         // Proccessing by objcopy
-        handle_output(self.watch, objcopy_interface::objcopy(&config.structure.builds))?;
+        handle_output(
+            self.watch,
+            objcopy_interface::objcopy(&config.structure.builds),
+        )?;
 
         Ok(println!("Проект был успешно собран."))
     }

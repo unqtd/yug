@@ -36,10 +36,16 @@ pub enum Language {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Firmware {
     pub name: String,
-    pub target: String,
+    pub target: Target,
     #[serde(skip_serializing_if = "Language::is_c")]
     #[serde(default)]
     pub language: Language,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Target {
+    pub model: String,
+    pub mhz: u8,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -52,9 +58,7 @@ pub struct Structure {
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Compiler {
     #[serde(default)]
-    pub args: Vec<String>
-    // #[serde(rename = "opt-level")]
-    // pub opt_level: Option<String>,
+    pub args: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]

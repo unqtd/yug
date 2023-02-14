@@ -72,7 +72,7 @@ impl<'a> CompilerInterface<'a> {
 impl<'a> CompilerInterface<'a> {
     pub fn compile(self) -> (Output, String) {
         let headers = format!("-I{}", self.config.structure.includes);
-        let mmcu = format!("-mmcu={}", self.config.firmware.target.to_lowercase());
+        let mmcu = format!("-mmcu={}", self.config.firmware.target.model.to_lowercase());
 
         let mut command = vec![
             (self
