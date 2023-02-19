@@ -41,11 +41,9 @@ impl Build {
         // Compilation of project
         let mut compiler_interface = CompilerInterface::new(config);
         compiler_interface.option(MHz(self.mhz.unwrap_or(config.firmware.target.mhz)));
-        compiler_interface.option(
-            self.opt_level
-                .clone()
-                .map_or_else(|| OptLevel("s".to_string()), OptLevel),
-        );
+        compiler_interface.option(OptLevel(
+            self.opt_level.clone().unwrap_or_else(|| "2".to_string()),
+        ));
 
         let sources = get_list_namefiles(
             config.structure.sources.as_str(),
