@@ -50,8 +50,8 @@ impl Build {
             config.firmware.language.to_str(),
         );
 
-        let c_headers = get_list_namefiles(config.structure.sources.as_str(), "h");
-        let cpp_headers = get_list_namefiles(config.structure.sources.as_str(), "hpp");
+        // let c_headers = get_list_namefiles(config.structure.sources.as_str(), "h");
+        // let cpp_headers = get_list_namefiles(config.structure.sources.as_str(), "hpp");
 
         let externlibs = config
             .externlibs
@@ -61,8 +61,8 @@ impl Build {
         let objects = get_list_namefiles("vendor", "o");
 
         compiler_interface.sources(sources);
-        compiler_interface.sources(c_headers);
-        compiler_interface.sources(cpp_headers);
+        // compiler_interface.sources(c_headers);
+        // compiler_interface.sources(cpp_headers);
         compiler_interface.sources(objects);
         compiler_interface.sources(externlibs);
 
