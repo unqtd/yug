@@ -4,7 +4,6 @@ mod runnable;
 mod util;
 
 use clap::{Parser, Subcommand};
-use colored::Colorize;
 use commands::{build::Build, flash::Flash, init::Init, util::Util};
 use runnable::Runnable;
 
@@ -19,7 +18,7 @@ fn main() {
     let cli = Cli::parse();
 
     if let Some(Err(err)) = cli.command.map(Runnable::run) {
-        eprintln!("{}", err.to_string().red());
+        eprintln!("{err}");
     }
 }
 

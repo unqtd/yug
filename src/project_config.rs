@@ -1,6 +1,5 @@
-use std::{collections::HashMap, error::Error, fs, io::Read};
-
 use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, error::Error, fs, io::Read};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectConfig {
@@ -110,7 +109,7 @@ impl ProjectConfig {
 
             toml::from_str(&text_config_file).map_err(|err| format!("TomlParser: {err}").into())
         } else {
-            Err("Not found yug.toml in current directory...".into())
+            Err("Не найден конфиг файл «yug.toml» в текущей директории...".into())
         }
     }
 }

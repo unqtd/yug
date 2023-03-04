@@ -37,7 +37,7 @@ impl<'a> CompilerInterface<'a> {
         }
     }
 
-    pub fn sources<I: Iterator<Item = String>>(&mut self, src: I) -> &mut Self {
+    pub fn inputs<I: Iterator<Item = String>>(&mut self, src: I) -> &mut Self {
         self.sources.extend(src);
         self
     }

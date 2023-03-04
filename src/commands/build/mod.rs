@@ -45,27 +45,22 @@ impl Build {
             self.opt_level.clone().unwrap_or_else(|| "s".to_string()),
         ));
 
-        let sources = get_list_namefiles(
+        // From src/
+        compiler_interface.inputs(get_list_namefiles(
             config.structure.sources.as_str(),
             config.firmware.language.to_str(),
+        ));
+
+        // From vendor/
+        compiler_interface.inputs(get_list_namefiles("vendor", "o"));
+        compiler_interface.inputs(
+            config
+                .externlibs
+                .iter()
+                .flat_map(|(_, lib)| lib.objs.iter().cloned()),
         );
 
-        // let c_headers = get_list_namefiles(config.structure.sources.as_str(), "h");
-        // let cpp_headers = get_list_namefiles(config.structure.sources.as_str(), "hpp");
-
-        let externlibs = config
-            .externlibs
-            .iter()
-            .flat_map(|(_, lib)| lib.objs.iter().cloned());
-
-        let objects = get_list_namefiles("vendor", "o");
-
-        compiler_interface.sources(sources);
-        // compiler_interface.sources(c_headers);
-        // compiler_interface.sources(cpp_headers);
-        compiler_interface.sources(objects);
-        compiler_interface.sources(externlibs);
-
+        // Добавление пользовательских флагов компилятору.
         for arg in config.compiler.args.iter().cloned() {
             compiler_interface.option(Custom(arg));
         }
@@ -79,6 +74,6 @@ impl Build {
             objcopy_interface::objcopy(&config.structure.builds),
         )?;
 
-        Ok(println!("Проект был успешно собран."))
+        Ok(())
     }
 }
