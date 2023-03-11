@@ -1,10 +1,9 @@
 mod avrdude_interface;
 
-use clap::Args;
-
-use crate::{project_config::ProjectConfig, runnable::Runnable, util::handle_output};
-
 use self::avrdude_interface::{AvrDudeInterface, AvrDudeOption};
+use crate::{project_config::ProjectConfig, runnable::Runnable};
+use clap::Args;
+use colored::Colorize;
 
 #[derive(Args, Debug)]
 pub struct Flash {
@@ -44,6 +43,11 @@ impl Runnable for Flash {
             .option_from(self.bitrate.map(BitRate))
             .option_from(self.bitclock.map(BitClock));
 
-        handle_output(self.watch, avrdude.load()).map_err(Into::into)
+        let cmd = avrdude.load()?;
+        if self.watch {
+            println!("{}", cmd.blue());
+        }
+
+        Ok(())
     }
 }

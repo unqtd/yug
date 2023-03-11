@@ -1,10 +1,9 @@
 use crate::{
-    commands::build::compiler_interface::CompilerInterface,
-    project_config::ProjectConfig,
-    runnable::Runnable,
-    util::{get_list_namefiles, handle_output},
+    commands::build::compiler_interface::CompilerInterface, project_config::ProjectConfig,
+    runnable::Runnable, util::get_list_namefiles,
 };
 use clap::Args;
+use colored::Colorize;
 use std::{error::Error, fs};
 
 pub mod compiler_interface;
@@ -65,15 +64,16 @@ impl Build {
             compiler_interface.option(Custom(arg));
         }
 
-        handle_output(self.watch, compiler_interface.compile())?;
-
-        /////////////////////////////////////////////////////////
-        // Proccessing by objcopy
-        handle_output(
-            self.watch,
-            objcopy_interface::objcopy(&config.structure.builds),
-        )?;
+        // Сборка
+        self.log(&compiler_interface.compile()?);
+        self.log(&objcopy_interface::objcopy(&config.structure.builds)?);
 
         Ok(())
+    }
+
+    fn log(&self, value: &str) {
+        if self.watch {
+            println!("$ {}", value.blue());
+        }
     }
 }

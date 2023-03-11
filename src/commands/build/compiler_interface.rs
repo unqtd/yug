@@ -1,10 +1,8 @@
 #![allow(dead_code)]
 
-use std::process::Output;
-
 use crate::{
     project_config::{Language, ProjectConfig},
-    util::{execute_command, ExecutionMode},
+    util::execute_command,
 };
 
 #[derive(Clone)]
@@ -70,7 +68,7 @@ impl<'a> CompilerInterface<'a> {
 }
 
 impl<'a> CompilerInterface<'a> {
-    pub fn compile(self) -> (Output, String) {
+    pub fn compile(self) -> Result<String, String> {
         let headers = format!("-I{}", self.config.structure.includes);
         let mmcu = format!("-mmcu={}", self.config.firmware.target.model.to_lowercase());
 
@@ -91,9 +89,7 @@ impl<'a> CompilerInterface<'a> {
         // Добавлены к команде на вход arguments
         command.extend(self.arguments.iter().map(String::as_str));
 
-        (
-            execute_command(&command, ExecutionMode::Output),
-            command.join(" "),
-        )
+        execute_command(&command)?;
+        Ok(command.join(" "))
     }
 }

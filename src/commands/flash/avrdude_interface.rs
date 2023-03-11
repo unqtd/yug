@@ -1,9 +1,4 @@
-use std::process::Output;
-
-use crate::{
-    project_config::ProjectConfig,
-    util::{execute_command, ExecutionMode},
-};
+use crate::{project_config::ProjectConfig, util::execute_command};
 
 #[derive(Clone, Copy)]
 pub enum AvrDudeOption<'a> {
@@ -48,15 +43,13 @@ impl<'a> AvrDudeInterface<'a> {
 }
 
 impl<'a> AvrDudeInterface<'a> {
-    pub fn load(self) -> (Output, String) {
+    pub fn load(self) -> Result<String, String> {
         let uflash = format!("-Uflash:w:{}/firmware.hex:i", self.config.structure.builds);
 
         let mut command = vec!["avrdude", uflash.as_str()];
         command.extend(self.arguments.iter().map(String::as_str));
 
-        (
-            execute_command(&command, ExecutionMode::Spawn),
-            command.join(" "),
-        )
+        execute_command(&command)?;
+        Ok(command.join(" "))
     }
 }

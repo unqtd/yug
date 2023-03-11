@@ -1,8 +1,6 @@
-use std::process::Output;
+use crate::util::execute_command;
 
-use crate::util::{execute_command, ExecutionMode};
-
-pub fn objcopy(builds: &str) -> (Output, String) {
+pub fn objcopy(builds: &str) -> Result<String, String> {
     let command = [
         "avr-objcopy",
         "-j",
@@ -15,8 +13,6 @@ pub fn objcopy(builds: &str) -> (Output, String) {
         &format!("{builds}/firmware.hex"),
     ];
 
-    (
-        execute_command(&command, ExecutionMode::Output),
-        command.join(" "),
-    )
+    execute_command(&command)?;
+    Ok(command.join(" "))
 }

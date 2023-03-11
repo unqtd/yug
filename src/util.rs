@@ -1,28 +1,27 @@
-use std::process::{Command, Output};
-
-use colored::Colorize;
 use glob::glob;
+use std::process::{Child, Command};
 
-#[derive(Clone, Copy)]
-pub enum ExecutionMode {
-    Output,
-    Spawn,
-}
-
-pub fn execute_command(cmds: &[&str], mode: ExecutionMode) -> Output {
+pub fn execute_command(cmds: &[&str]) -> Result<(), String> {
     if let (&[prog], args) = cmds.split_at(1) {
         let mut command = Command::new(prog);
         command.args(args.iter().filter(|s| !s.is_empty()));
 
-        match mode {
-            ExecutionMode::Output => command.output(),
-            ExecutionMode::Spawn => command
-                .spawn()
-                .and_then(std::process::Child::wait_with_output),
+        let output = command
+            .spawn()
+            .and_then(Child::wait_with_output)
+            .unwrap_or_else(|_| panic!("Failed to run '{prog}'"));
+
+        let exit_code = output.status.code().expect("Process terminated by signal");
+
+        if exit_code == 0 {
+            Ok(())
+        } else {
+            Err(format!(
+                "Ошибка при запуске: «{prog}». Exit code: {exit_code}."
+            ))
         }
-        .unwrap_or_else(|_| panic!("Failed to run '{prog}'"))
     } else {
-        todo!()
+        unreachable!()
     }
 }
 
@@ -32,16 +31,4 @@ pub fn get_list_namefiles(directory: &str, ext: &str) -> impl Iterator<Item = St
         .map(|filename| filename.unwrap().display().to_string());
 
     filenames
-}
-
-pub fn handle_output(watch: bool, (output, cmd): (Output, String)) -> Result<(), String> {
-    if watch {
-        print!("$ {}", cmd.blue());
-    }
-
-    if output.stderr.is_empty() {
-        Ok(())
-    } else {
-        Err(String::from_utf8(output.stderr).unwrap())
-    }
 }

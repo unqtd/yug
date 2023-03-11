@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, error::Error, fs, io::Read};
+use std::{collections::HashMap, fs};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectConfig {
@@ -102,14 +102,10 @@ impl Default for Structure {
 /////////////////////////////////////////////////////
 
 impl ProjectConfig {
-    pub fn read_from_file(path: &str) -> Result<Self, Box<dyn Error>> {
-        if let Ok(mut file) = fs::File::open(path) {
-            let mut text_config_file = String::new();
-            file.read_to_string(&mut text_config_file)?;
+    pub fn read_from_file(path: &str) -> Result<Self, String> {
+        let text_config = fs::read_to_string(path)
+            .map_err(|_| "Не найден конфиг файл «yug.toml» в текущей директории...")?;
 
-            toml::from_str(&text_config_file).map_err(|err| format!("TomlParser: {err}").into())
-        } else {
-            Err("Не найден конфиг файл «yug.toml» в текущей директории...".into())
-        }
+        toml::from_str(&text_config).map_err(|err| format!("TomlParser: {err}"))
     }
 }
